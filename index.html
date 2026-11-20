@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Italy Tourism Observatory (2022–2026)</title>
+  <title>Italy Tourism Observatory (2022–2027)</title>
   <link rel="stylesheet" href="./styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 </head>
@@ -27,14 +27,17 @@
   </header>
 
   <main class="container main-content">
-    <!-- Dynamic KPI Strip -->
-    <section class="kpi-grid" id="kpi-grid" aria-label="Key metrics"></section>
+    <!-- Static Reference KPI Strip -->
+    <section class="kpi-grid" id="kpi-grid" aria-label="Key reference metrics"></section>
+
+    <!-- Dynamic Filtered KPI Strip -->
+    <section class="kpi-grid live-kpi-grid" id="live-kpi-grid" aria-label="Live computed metrics"></section>
 
     <!-- Primary Chart Panel -->
     <section class="panel" aria-labelledby="chart-heading">
       <div class="panel-header">
         <div>
-          <h2 id="chart-heading">National &amp; Corridor Index (2022–2026)</h2>
+          <h2 id="chart-heading">National &amp; Corridor Index (2022–2027)</h2>
           <p class="panel-desc" id="chart-desc">
             Indexed to Jan 2022 = 100. Hover any period for context notes.
           </p>
@@ -58,8 +61,19 @@
               <span>Show 2027 Forecast</span>
             </label>
           </div>
+
+          <div class="control-group" id="scenario-control-group">
+            <label for="scenario-select">2027 Scenario</label>
+            <select id="scenario-select">
+              <option value="0.97">Conservative (-3%)</option>
+              <option value="1" selected>Base (0%)</option>
+              <option value="1.04">Upside (+4%)</option>
+            </select>
+          </div>
         </div>
       </div>
+
+      <div class="nuance-banner" id="lens-nuance-banner"></div>
 
       <div class="chart-wrap">
         <canvas id="mainChart"></canvas>
@@ -73,19 +87,35 @@
       <div class="panel-header">
         <div>
           <h2 id="regional-table-heading">Regional Concentration &amp; Dispersal Snapshot</h2>
-          <p class="panel-desc">
+          <p class="panel-desc" id="dispersal-metrics-summary">
             Compare top honeypot hubs against secondary and alpine/rural corridors.
           </p>
+        </div>
+        <div class="controls-row">
+          <div class="control-group">
+            <label for="role-filter">Filter by Role</label>
+            <select id="role-filter">
+              <option value="all">All Roles</option>
+              <option value="Core Hub">Core Hub</option>
+              <option value="Core + Alpine">Core + Alpine</option>
+              <option value="Gateway + Alpine">Gateway + Alpine</option>
+              <option value="Core + Rural">Core + Rural</option>
+              <option value="Secondary / Diversified">Secondary / Diversified</option>
+              <option value="Alpine / Nature">Alpine / Nature</option>
+            </select>
+          </div>
         </div>
       </div>
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>Region / Corridor</th>
-              <th>Role</th>
-              <th>2022–2026 Trend</th>
-              <th>Seasonality Profile</th>
+              <th><button class="sort-btn" type="button" data-sort="label">Region / Corridor</button></th>
+              <th><button class="sort-btn" type="button" data-sort="role">Role</button></th>
+              <th><button class="sort-btn" type="button" data-sort="share25">2025 Share (%)</button></th>
+              <th><button class="sort-btn" type="button" data-sort="delta">Share Shift</button></th>
+              <th><button class="sort-btn" type="button" data-sort="intensity">Nights / 1k Pop.</button></th>
+              <th>Seasonality</th>
               <th>Pressure Signal</th>
             </tr>
           </thead>
@@ -110,7 +140,7 @@
 
     const FALLBACK_DATA = {
       meta: {
-        title: "Italy Tourism Observatory (2022–2026)",
+        title: "Italy Tourism Observatory (2022–2027)",
         sources: "ISTAT, ENIT / Ministry of Tourism, Jubilee & Milano Cortina releases",
         status: "Fallback Baseline · JSON Not Found"
       },
@@ -118,8 +148,8 @@
         trajectory: {
           title: "2022–2026 Trajectory",
           subtitle: "Post-pandemic rebound, shoulder-season growth, and mega-event waves across Italy.",
-          chartHeading: "National & Corridor Index (2022–2026)",
-          chartDesc: "Indexed to Jan 2022 = 100. Dashed segments indicate 2027 projections.",
+          chartHeading: "National & Corridor Index (2022–2027)",
+          chartDesc: "Indexed to Jan 2022 = 100. Dashed segments indicate 2027 scenario projections.",
           chartType: "line",
           callout: "<strong>Trajectory takeaway:</strong> Strong summer peaks are increasingly paired with spring/autumn shoulder demand and event spikes in 2025–2026.",
           showRegionalTable: false,
@@ -127,16 +157,31 @@
             { label: "2024 Inbound Arrivals", value: "~57.7M", meta: "~381M international nights", positive: false },
             { label: "2025 Visitor Volume", value: "~87.9M", meta: "Record annual momentum", positive: true },
             { label: "Shoulder Expansion", value: "Apr–Jun / Sep–Nov", meta: "Broadening beyond peak summer", positive: true },
-            { label: "Event Window Span", value: "Dec 2024 – Feb 2026", meta: "Jubilee & Winter Olympics", positive: false }
+            { label": "Event Window Span", value: "Dec 2024 – Feb 2026", meta: "Jubilee & Winter Olympics", positive: false }
           ],
           lenses: [
-            { value: "all", label: "All Series", visible: [true, true, true, true] },
-            { value: "national-vs-secondary", label: "National vs. Secondary Regions", visible: [true, false, false, true] },
-            { value: "event-corridors", label: "Rome/Lazio vs. Northern/Alpine", visible: [false, true, true, false] }
+            {
+              value: "all",
+              label: "All Series",
+              visible: [true, true, true, true],
+              nuance: "<strong>Lens nuance:</strong> Compares national index movement against Rome/Lazio, Northern/Alpine corridors, and secondary regions on a common Jan 2022 = 100 base."
+            },
+            {
+              value: "national-vs-secondary",
+              label: "National vs. Secondary Regions",
+              visible: [true, false, false, true],
+              nuance: "<strong>Lens nuance:</strong> Tracks whether secondary/non-honeypot regions are compounding at or above the national pace."
+            },
+            {
+              value: "event-corridors",
+              label: "Rome/Lazio vs. Northern/Alpine",
+              visible: [false, true, true, false],
+              nuance: "<strong>Lens nuance:</strong> Contrasts the multi-month 2025 Jubilee corridor against the sharp Feb 2026 Winter Olympics window."
+            }
           ],
           windows: [
-            { value: "full", label: "2022–2026" },
-            { value: "recent", label: "2024–2026" }
+            { value: "full", label: "2022–2027" },
+            { value: "recent", label: "2024–2027" }
           ],
           seriesLabels: ["National Index", "Rome & Lazio", "Northern & Alpine", "Secondary Regions"],
           seriesColors: ["#1d4ed8", "#b45309", "#0f766e", "#6d28d9"],
@@ -170,7 +215,10 @@
     let activeTabKey = "trajectory";
     let activeWindowValue = "full";
     let showForecast2027 = true;
+    let forecastMultiplier = 1;
     let currentFilteredRows = [];
+    let tableSort = { key: "share25", dir: "desc" };
+    let roleFilterValue = "all";
 
     const ctx = document.getElementById("mainChart").getContext("2d");
     const mainChart = new Chart(ctx, {
@@ -183,6 +231,16 @@
         plugins: {
           tooltip: {
             callbacks: {
+              label(context) {
+                const val = context.parsed.y;
+                const row = currentFilteredRows[context.dataIndex];
+                if (typeof val !== "number" || Number.isNaN(val)) return `${context.dataset.label}: —`;
+                if (row && isForecastRow(row) && forecastMultiplier !== 1) {
+                  const baseVal = Number(row.v[context.datasetIndex]);
+                  return `${context.dataset.label}: ${val.toFixed(1)} (base ${baseVal.toFixed(1)})`;
+                }
+                return `${context.dataset.label}: ${val.toFixed(1)}`;
+              },
               afterBody(items) {
                 const idx = items[0]?.dataIndex ?? 0;
                 const row = currentFilteredRows[idx];
@@ -200,6 +258,12 @@
       return Boolean(row.forecast) || String(row.label || "").startsWith("2027");
     }
 
+    function getAdjustedValue(row, seriesIdx) {
+      const raw = Number(row.v[seriesIdx] ?? 0);
+      if (!isForecastRow(row)) return raw;
+      return Number((raw * forecastMultiplier).toFixed(2));
+    }
+
     function normalizeRows(rows, seriesCount) {
       if (!Array.isArray(rows)) return [];
       return rows.map((item) => {
@@ -210,6 +274,8 @@
         return {
           label,
           v,
+          populationK: item.populationK ? Number(item.populationK) : null,
+          nightsM: item.nightsM ? Number(item.nightsM) : null,
           note: item.note ?? item.key_jubilee_event ?? "",
           forecast: Boolean(item.forecast) || label.startsWith("2027"),
           role: item.role,
@@ -278,6 +344,73 @@
         .join("");
     }
 
+    function renderLiveKpis(cfg, lensObj) {
+      const grid = document.getElementById("live-kpi-grid");
+      if (!currentFilteredRows.length) {
+        grid.innerHTML = "";
+        return;
+      }
+
+      const activeIndices = cfg.seriesLabels
+        .map((_, idx) => idx)
+        .filter((idx) => lensObj.visible?.[idx] ?? true);
+
+      const primaryIdx = activeIndices[0] ?? 0;
+      const seriesName = cfg.seriesLabels[primaryIdx] || "Series";
+      const seriesVals = currentFilteredRows.map((r) => getAdjustedValue(r, primaryIdx));
+
+      const firstVal = seriesVals[0];
+      const lastVal = seriesVals[seriesVals.length - 1];
+      const delta = firstVal ? ((lastVal - firstVal) / firstVal) * 100 : 0;
+      const peakVal = Math.max(...seriesVals);
+      const peakRow = currentFilteredRows[seriesVals.indexOf(peakVal)];
+
+      const forecastRows = currentFilteredRows.filter((r) => isForecastRow(r));
+      const forecastMeta =
+        forecastRows.length > 0
+          ? `${forecastRows.length} projected pts (${forecastMultiplier === 1 ? "Base 0%" : `${Math.round((forecastMultiplier - 1) * 100)}%`})`
+          : "2027 forecast hidden or N/A";
+
+      const cards = [
+        {
+          label: `Window Change · ${seriesName}`,
+          value: `${delta >= 0 ? "+" : ""}${delta.toFixed(1)}%`,
+          meta: `${currentFilteredRows[0].label} (${firstVal.toFixed(1)}) → ${currentFilteredRows[currentFilteredRows.length - 1].label} (${lastVal.toFixed(1)})`,
+          positive: delta > 0
+        },
+        {
+          label: `Peak in Window · ${seriesName}`,
+          value: peakVal.toFixed(1),
+          meta: `Reached in ${peakRow?.label || "—"}`,
+          positive: true
+        },
+        {
+          label: "Active Filter Scope",
+          value: `${currentFilteredRows.length} pts`,
+          meta: `${activeIndices.length} of ${cfg.seriesLabels.length} series shown`,
+          positive: false
+        },
+        {
+          label: "Forecast Status",
+          value: showForecast2027 ? "Enabled" : "Hidden",
+          meta: forecastMeta,
+          positive: showForecast2027
+        }
+      ];
+
+      grid.innerHTML = cards
+        .map(
+          (c) => `
+          <article class="kpi-card live-kpi-card">
+            <span class="kpi-label">${c.label}</span>
+            <strong class="kpi-value">${c.value}</strong>
+            <span class="kpi-meta ${c.positive ? "positive" : ""}">${c.meta}</span>
+          </article>
+        `
+        )
+        .join("");
+    }
+
     function renderNotes(notes = []) {
       const grid = document.getElementById("notes-grid");
       grid.innerHTML = notes
@@ -292,27 +425,83 @@
         .join("");
     }
 
+    function enrichRegionalRows(rows) {
+      return rows.map((r) => {
+        const share22 = Number(r.v[0] ?? 0);
+        const share25 = Number(r.v[1] ?? 0);
+        const delta = Number((share25 - share22).toFixed(1));
+        const intensity =
+          r.populationK && r.nightsM
+            ? Number(((r.nightsM * 1000) / r.populationK).toFixed(1))
+            : null;
+        return { ...r, share22, share25, delta, intensity };
+      });
+    }
+
     function renderRegionalTable(rows, show) {
       const panel = document.getElementById("regional-table-panel");
       const tbody = document.getElementById("regional-table-body");
+      const summaryEl = document.getElementById("dispersal-metrics-summary");
+
       if (!show) {
         panel.classList.add("is-hidden");
         return;
       }
       panel.classList.remove("is-hidden");
-      tbody.innerHTML = rows
+
+      const enrichedAll = enrichRegionalRows(rows);
+      const shares25Decimal = enrichedAll.map((r) => r.share25 / 100);
+      const hhi = Math.round(shares25Decimal.reduce((acc, s) => acc + s * s, 0) * 10000);
+      const top3Share = [...enrichedAll]
+        .sort((a, b) => b.share25 - a.share25)
+        .slice(0, 3)
+        .reduce((acc, r) => acc + r.share25, 0);
+
+      if (summaryEl) {
+        summaryEl.textContent = `Sample HHI (scaled): ${hhi} · Top-3 Share (2025): ${top3Share.toFixed(1)}%. Click column headers to sort.`;
+      }
+
+      let displayRows = enrichedAll;
+      if (roleFilterValue !== "all") {
+        displayRows = displayRows.filter((r) => r.role === roleFilterValue);
+      }
+
+      displayRows.sort((a, b) => {
+        const dir = tableSort.dir === "asc" ? 1 : -1;
+        const valA = a[tableSort.key];
+        const valB = b[tableSort.key];
+        if (typeof valA === "number" && typeof valB === "number") {
+          return (valA - valB) * dir;
+        }
+        return String(valA || "").localeCompare(String(valB || "")) * dir;
+      });
+
+      tbody.innerHTML = displayRows
         .map(
           (r) => `
           <tr>
             <td><strong>${r.label}</strong></td>
             <td>${r.role || "—"}</td>
-            <td>${r.trend || "—"}</td>
+            <td>${r.share25.toFixed(1)}%</td>
+            <td>${r.delta >= 0 ? "+" : ""}${r.delta.toFixed(1)} pp</td>
+            <td>${r.intensity !== null ? `${r.intensity.toLocaleString()}` : "—"}</td>
             <td>${r.season || "—"}</td>
             <td>${r.pressure || "—"}</td>
           </tr>
         `
         )
         .join("");
+    }
+
+    function renderNuanceBanner(lensObj) {
+      const banner = document.getElementById("lens-nuance-banner");
+      if (!banner) return;
+      if (lensObj?.nuance) {
+        banner.innerHTML = lensObj.nuance;
+        banner.classList.remove("is-hidden");
+      } else {
+        banner.classList.add("is-hidden");
+      }
     }
 
     function renderControls(cfg) {
@@ -351,6 +540,10 @@
           });
         });
       }
+
+      const scenarioGroup = document.getElementById("scenario-control-group");
+      const hasForecasts = (cfg.rows || []).some((r) => isForecastRow(r));
+      scenarioGroup.classList.toggle("is-hidden", !hasForecasts || !showForecast2027);
     }
 
     function updateChartView() {
@@ -358,6 +551,10 @@
       const lenses = cfg.lenses || [{ value: "all", label: "All Series", visible: [] }];
       const lensValue = document.getElementById("lens-select").value;
       const lensObj = lenses.find((l) => l.value === lensValue) || lenses[0];
+
+      const scenarioGroup = document.getElementById("scenario-control-group");
+      const hasForecasts = (cfg.rows || []).some((r) => isForecastRow(r));
+      scenarioGroup.classList.toggle("is-hidden", !hasForecasts || !showForecast2027);
 
       const normalizedAll = normalizeRows(cfg.rows, cfg.seriesLabels.length);
       currentFilteredRows = filterRowsForTab(activeTabKey, normalizedAll, activeWindowValue);
@@ -367,7 +564,7 @@
       mainChart.data.labels = currentFilteredRows.map((r) => r.label);
       mainChart.data.datasets = cfg.seriesLabels.map((label, idx) => ({
         label,
-        data: currentFilteredRows.map((r) => r.v[idx]),
+        data: currentFilteredRows.map((r) => getAdjustedValue(r, idx)),
         borderColor: cfg.seriesColors[idx],
         backgroundColor: cfg.seriesColors[idx],
         tension: 0.3,
@@ -392,6 +589,8 @@
       };
 
       mainChart.update();
+      renderNuanceBanner(lensObj);
+      renderLiveKpis(cfg, lensObj);
     }
 
     function switchTab(tabKey) {
@@ -424,6 +623,30 @@
     document.getElementById("forecast-toggle").addEventListener("change", (e) => {
       showForecast2027 = e.target.checked;
       updateChartView();
+    });
+
+    document.getElementById("scenario-select").addEventListener("change", (e) => {
+      forecastMultiplier = Number(e.target.value) || 1;
+      updateChartView();
+    });
+
+    document.getElementById("role-filter").addEventListener("change", (e) => {
+      roleFilterValue = e.target.value;
+      const cfg = getTabConfig(activeTabKey);
+      renderRegionalTable(normalizeRows(cfg.rows, cfg.seriesLabels.length), Boolean(cfg.showRegionalTable));
+    });
+
+    document.querySelectorAll(".sort-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const key = btn.dataset.sort;
+        if (tableSort.key === key) {
+          tableSort.dir = tableSort.dir === "asc" ? "desc" : "asc";
+        } else {
+          tableSort = { key, dir: "desc" };
+        }
+        const cfg = getTabConfig(activeTabKey);
+        renderRegionalTable(normalizeRows(cfg.rows, cfg.seriesLabels.length), Boolean(cfg.showRegionalTable));
+      });
     });
 
     (async function init() {
