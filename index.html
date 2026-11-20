@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Italy Tourism (2022–2026) — 2025 Jubilee Deep Dive</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div>
+        <p class="eyebrow">Italy Tourism Observatory · GitHub Pages Edition</p>
+        <h1>2025 Jubilee Deep Dive (Rome &amp; Lazio)</h1>
+        <p class="subtitle">
+          Tracking pilgrimage waves from the Holy Door opening (Dec 24, 2024) through closing (Jan 6, 2026)
+          alongside Rome arrivals and Lazio international spending.
+        </p>
+      </div>
+      <nav class="tab-bar" aria-label="Dashboard sections">
+        <button class="tab-btn" type="button" data-section="overview">2022–2026 Trajectory</button>
+        <button class="tab-btn is-active" type="button" data-section="jubilee">2025 Jubilee</button>
+        <button class="tab-btn" type="button" data-section="olympics">2026 Olympics</button>
+        <button class="tab-btn" type="button" data-section="dispersal">Regional Dispersal</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <!-- KPI Strip -->
+    <section class="kpi-grid" aria-label="Key Jubilee metrics">
+      <article class="kpi-card">
+        <span class="kpi-label">Jubilee Program Participation</span>
+        <strong class="kpi-value">~33.5M</strong>
+        <span class="kpi-meta">Dec 2024 – Jan 2026 cumulative scope</span>
+      </article>
+      <article class="kpi-card">
+        <span class="kpi-label">Rome City Arrivals (2025)</span>
+        <strong class="kpi-value">22.9M</strong>
+        <span class="kpi-meta">52.92M overnight stays in Rome</span>
+      </article>
+      <article class="kpi-card">
+        <span class="kpi-label">Lazio Intl. Spend (2025)</span>
+        <strong class="kpi-value">€10.25B</strong>
+        <span class="kpi-meta positive">+19.2% YoY (Jubilee-driven lift)</span>
+      </article>
+      <article class="kpi-card">
+        <span class="kpi-label">Rome Airport Throughput</span>
+        <strong class="kpi-value">55.3M</strong>
+        <span class="kpi-meta">Fiumicino &amp; Ciampino combined (2025)</span>
+      </article>
+    </section>
+
+    <!-- Controls + Chart Panel -->
+    <section class="panel" aria-labelledby="chart-heading">
+      <div class="panel-header">
+        <div>
+          <h2 id="chart-heading">Jubilee Wave vs. Rome Arrivals &amp; Lazio Spend</h2>
+          <p class="panel-desc">
+            Indexed to January 2024 baseline (100). Toggle lenses or inspect the active Jubilee window.
+          </p>
+        </div>
+
+        <div class="controls-row">
+          <div class="control-group">
+            <label for="lens-select">Metric Lens</label>
+            <select id="lens-select">
+              <option value="all">All Jubilee Series</option>
+              <option value="wave-vs-arrivals">Pilgrimage Wave vs. Rome Arrivals</option>
+              <option value="vatican-vs-spend">Vatican Corridor vs. Lazio Spend</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <span class="control-label">Time Window</span>
+            <div class="segmented-control" role="group" aria-label="Time Window">
+              <button class="seg-btn is-active" type="button" data-window="full">2024–2026</button>
+              <button class="seg-btn" type="button" data-window="jubilee">Dec ’24 – Jan ’26</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-wrap">
+        <canvas id="jubileeChart"></canvas>
+      </div>
+
+      <div class="milestone-bar" id="milestone-callout">
+        <strong>Key Window:</strong> Late-July / early-August 2025 Youth Jubilee surge and Dec 24, 2024 – Jan 6, 2026 Holy Door milestones.
+      </div>
+    </section>
+
+    <!-- Analytical Notes -->
+    <section class="notes-grid">
+      <article class="panel">
+        <h3>Participation vs. Bed-Night Capacity</h3>
+        <p>
+          Official Jubilee program counts capture same-day pilgrims, liturgical gatherings, and group visits,
+          whereas ISTAT hotel and short-term rental series measure overnight stays. Keeping both visible avoids
+          overstating hotel occupancy during single-day surges.
+        </p>
+      </article>
+      <article class="panel">
+        <h3>Vatican Corridor &amp; Lazio Spillover</h3>
+        <p>
+          Demand concentrated around the Vatican, Prati/Borgo, and the four Major Basilicas while lifting
+          international spending across Lazio. Load <code>./data/processed/jubilee_2025.json</code> in your
+          script to swap placeholder series for verified monthly data.
+        </p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>Sources: ISTAT, ENIT / Ministry of Tourism, Jubilee &amp; Airport releases</span>
+      <span id="data-status-badge" class="badge">Prototype Baseline · Ready for JSON</span>
+    </div>
+  </footer>
+
+  <script>
+    const PROTOTYPE_SERIES = [
+      { month: "2024-01", arrivals: 100.0, wave: 100.0, vatican: 100.0, spend: 100.0, note: "2024 baseline month" },
+      { month: "2024-04", arrivals: 118.5, wave: 105.0, vatican: 108.0, spend: 115.0, note: "Spring leisure & pre-Jubilee prep" },
+      { month: "2024-07", arrivals: 136.0, wave: 110.0, vatican: 114.0, spend: 132.0, note: "Summer peak baseline" },
+      { month: "2024-10", arrivals: 124.0, wave: 112.0, vatican: 116.0, spend: 121.0, note: "Autumn shoulder season" },
+      { month: "2024-12", arrivals: 116.0, wave: 134.0, vatican: 138.0, spend: 119.0, note: "Holy Door opens (Dec 24, 2024)" },
+      { month: "2025-02", arrivals: 109.0, wave: 122.0, vatican: 125.0, spend: 112.0, note: "Winter pilgrimage & Rome arrivals" },
+      { month: "2025-04", arrivals: 129.0, wave: 148.0, vatican: 152.0, spend: 134.0, note: "Spring Jubilee & Easter gatherings" },
+      { month: "2025-07", arrivals: 147.0, wave: 184.0, vatican: 176.0, spend: 156.0, note: "Jubilee of Young People surge" },
+      { month: "2025-10", arrivals: 135.0, wave: 150.0, vatican: 154.0, spend: 142.0, note: "Autumn Jubilee pilgrimage wave" },
+      { month: "2025-12", arrivals: 125.0, wave: 144.0, vatican: 147.0, spend: 131.0, note: "Late Holy Year final month" },
+      { month: "2026-01", arrivals: 115.0, wave: 128.0, vatican: 126.0, spend: 118.0, note: "Holy Door closes (Jan 6, 2026)" },
+      { month: "2026-04", arrivals: 126.0, wave: 108.0, vatican: 112.0, spend: 124.0, note: "Post-Jubilee spring normalization" },
+      { month: "2026-07", arrivals: 142.0, wave: 112.0, vatican: 116.0, spend: 139.0, note: "Post-Jubilee summer baseline" }
+    ];
+
+    const ctx = document.getElementById("jubileeChart").getContext("2d");
+    const chart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: [],
+        datasets: [
+          { label: "Rome Arrivals Index", data: [], borderColor: "#1d4ed8", backgroundColor: "#1d4ed8", tension: 0.3 },
+          { label: "Jubilee Wave Index", data: [], borderColor: "#b45309", backgroundColor: "#b45309", tension: 0.3 },
+          { label: "Vatican Corridor Index", data: [], borderColor: "#0f766e", backgroundColor: "#0f766e", tension: 0.3 },
+          { label: "Lazio Intl. Spend Index", data: [], borderColor: "#6d28d9", backgroundColor: "#6d28d9", tension: 0.3 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              afterBody(items) {
+                const idx = items[0]?.dataIndex ?? 0;
+                const row = activeRows[idx];
+                return row ? `\nNote: ${row.note}` : "";
+              }
+            }
+          }
+        },
+        scales: {
+          y: { suggestedMin: 80, suggestedMax: 200 }
+        }
+      }
+    });
+
+    let activeRows = PROTOTYPE_SERIES;
+
+    function updateChart() {
+      const windowMode = document.querySelector(".seg-btn.is-active")?.dataset.window || "full";
+      const lens = document.getElementById("lens-select").value;
+
+      activeRows = windowMode === "jubilee"
+        ? PROTOTYPE_SERIES.filter((r) => r.month >= "2024-12" && r.month <= "2026-01")
+        : PROTOTYPE_SERIES;
+
+      const showMap = {
+        all: [true, true, true, true],
+        "wave-vs-arrivals": [true, true, false, false],
+        "vatican-vs-spend": [false, false, true, true]
+      };
+      const visibleFlags = showMap[lens] || showMap.all;
+
+      chart.data.labels = activeRows.map((r) => r.month);
+      const seriesKeys = ["arrivals", "wave", "vatican", "spend"];
+      chart.data.datasets.forEach((ds, i) => {
+        ds.hidden = !visibleFlags[i];
+        ds.data = activeRows.map((r) => r[seriesKeys[i]]);
+      });
+      chart.update();
+    }
+
+    document.getElementById("lens-select").addEventListener("change", updateChart);
+    document.querySelectorAll(".seg-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".seg-btn").forEach((b) => b.classList.remove("is-active"));
+        btn.classList.add("is-active");
+        updateChart();
+      });
+    });
+
+    updateChart();
+  </script>
+</body>
+</html>
