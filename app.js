@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "Italy Tourism Observatory (2022–2026)",
-    "subtitle": "Post-pandemic recovery, shoulder-season expansion, mega-events, and regional dispersal across Italy.",
+    "title": "Italy Tourism Observatory (2022–2027)",
+    "subtitle": "Post-pandemic recovery, shoulder-season expansion, mega-events, regional dispersal, and 2027 scenarios.",
     "sources": "ISTAT, ENIT / Ministry of Tourism, Jubilee & Milano Cortina releases",
     "status": "Prototype Baseline · Ready for Verified Series"
   },
@@ -9,8 +9,8 @@
     "trajectory": {
       "title": "2022–2026 Trajectory",
       "subtitle": "Post-pandemic rebound, shoulder-season growth, and mega-event waves across Italy.",
-      "chartHeading": "National & Corridor Index (2022–2026)",
-      "chartDesc": "Indexed to Jan 2022 = 100. Hover any period for context notes.",
+      "chartHeading": "National & Corridor Index (2022–2027)",
+      "chartDesc": "Indexed to Jan 2022 = 100. Dashed segments indicate 2027 scenario projections.",
       "chartType": "line",
       "callout": "<strong>Trajectory takeaway:</strong> Strong summer peaks are increasingly paired with spring/autumn shoulder demand and event spikes in 2025–2026.",
       "showRegionalTable": false,
@@ -21,13 +21,28 @@
         { "label": "Event Window Span", "value": "Dec 2024 – Feb 2026", "meta": "Jubilee & Winter Olympics", "positive": false }
       ],
       "lenses": [
-        { "value": "all", "label": "All Series", "visible": [true, true, true, true] },
-        { "value": "national-vs-secondary", "label": "National vs. Secondary Regions", "visible": [true, false, false, true] },
-        { "value": "event-corridors", "label": "Rome/Lazio vs. Northern/Alpine", "visible": [false, true, true, false] }
+        {
+          "value": "all",
+          "label": "All Series",
+          "visible": [true, true, true, true],
+          "nuance": "<strong>Lens nuance:</strong> Compares national index movement against Rome/Lazio, Northern/Alpine corridors, and secondary regions on a common Jan 2022 = 100 base."
+        },
+        {
+          "value": "national-vs-secondary",
+          "label": "National vs. Secondary Regions",
+          "visible": [true, false, false, true],
+          "nuance": "<strong>Lens nuance:</strong> Tracks whether secondary/non-honeypot regions are compounding at or above the national pace rather than relying solely on core hubs."
+        },
+        {
+          "value": "event-corridors",
+          "label": "Rome/Lazio vs. Northern/Alpine",
+          "visible": [false, true, true, false],
+          "nuance": "<strong>Lens nuance:</strong> Contrasts the multi-month 2025 Jubilee corridor in Rome/Lazio against the sharp Feb 2026 Winter Olympics window in Northern/Alpine areas."
+        }
       ],
       "windows": [
-        { "value": "full", "label": "2022–2026" },
-        { "value": "recent", "label": "2024–2026" }
+        { "value": "full", "label": "2022–2027" },
+        { "value": "recent", "label": "2024–2027" }
       ],
       "seriesLabels": ["National Index", "Rome & Lazio", "Northern & Alpine", "Secondary Regions"],
       "seriesColors": ["#1d4ed8", "#b45309", "#0f766e", "#6d28d9"],
@@ -51,6 +66,10 @@
         {
           "heading": "Two Distinct Mega-Event Shapes",
           "body": "The 2025 Jubilee stretched across more than a year in Rome/Lazio, whereas the February 2026 Winter Olympics created a sharp winter spike in Northern & Alpine corridors."
+        },
+        {
+          "heading": "Forecast & Revision Caveat",
+          "body": "2027 rows are scenario projections layered onto baseline seasonality—not observed outcomes—and historical series remain subject to official revisions."
         }
       ]
     },
@@ -69,12 +88,27 @@
         { "label": "Rome Airports (2025)", "value": "55.3M", "meta": "Fiumicino & Ciampino", "positive": false }
       ],
       "lenses": [
-        { "value": "all", "label": "All Jubilee Series", "visible": [true, true, true, true] },
-        { "value": "wave-arrivals", "label": "Jubilee Wave vs. Rome Arrivals", "visible": [true, true, false, false] },
-        { "value": "vatican-spend", "label": "Vatican Corridor vs. Lazio Spend", "visible": [false, false, true, true] }
+        {
+          "value": "all",
+          "label": "All Jubilee Series",
+          "visible": [true, true, true, true],
+          "nuance": "<strong>Lens nuance:</strong> Pilgrimage/event wave counts include same-day and repeat passages; compare them carefully against overnight arrivals and expenditure."
+        },
+        {
+          "value": "wave-arrivals",
+          "label": "Jubilee Wave vs. Rome Arrivals",
+          "visible": [true, true, false, false],
+          "nuance": "<strong>Lens nuance:</strong> Contrasts high-intensity pilgrimage/gathering waves against registered Rome arrivals, which track multi-night stay demand."
+        },
+        {
+          "value": "vatican-spend",
+          "label": "Vatican Corridor vs. Lazio Spend",
+          "visible": [false, false, true, true],
+          "nuance": "<strong>Lens nuance:</strong> Pairs local foot-traffic intensity near Vatican/basilica corridors with broader regional international spending in Lazio."
+        }
       ],
       "windows": [
-        { "value": "full", "label": "2024–2026" },
+        { "value": "full", "label": "2024–2027" },
         { "value": "jubilee", "label": "Dec ’24 – Jan ’26" }
       ],
       "seriesLabels": ["Rome Arrivals", "Jubilee Wave", "Vatican Corridor", "Lazio Intl. Spend"],
@@ -99,6 +133,10 @@
         {
           "heading": "Vatican & Lazio Spillover",
           "body": "Track Vatican/Prati/Borgo and Major Basilica activity alongside Lazio international expenditure and airport traffic."
+        },
+        {
+          "heading": "Post-Event Cooldown",
+          "body": "Event-specific pilgrimage waves normalize toward leisure and seasonal baselines after the Holy Door closes in January 2026."
         }
       ]
     },
@@ -117,13 +155,28 @@
         { "label": "Post-Event Phase", "value": "Mar–Apr 2026", "meta": "Spring normalization & shoulder shift", "positive": false }
       ],
       "lenses": [
-        { "value": "all", "label": "All Olympics Series", "visible": [true, true, true] },
-        { "value": "alpine-vs-milan", "label": "Alpine Clusters vs. Milan Gateway", "visible": [true, true, false] },
-        { "value": "alpine-vs-national", "label": "Alpine Clusters vs. National", "visible": [true, false, true] }
+        {
+          "value": "all",
+          "label": "All Olympics Series",
+          "visible": [true, true, true],
+          "nuance": "<strong>Lens nuance:</strong> Compares alpine competition corridors and Milan gateway demand against a broader national baseline."
+        },
+        {
+          "value": "alpine-vs-milan",
+          "label": "Alpine Clusters vs. Milan Gateway",
+          "visible": [true, true, false],
+          "nuance": "<strong>Lens nuance:</strong> Mountain resorts face tight lodging capacity and rate spikes, whereas Milan acts as a transit, corporate, and event hub."
+        },
+        {
+          "value": "alpine-vs-national",
+          "label": "Alpine Clusters vs. National",
+          "visible": [true, false, true],
+          "nuance": "<strong>Lens nuance:</strong> Isolates mid-winter alpine Games intensity from general national seasonal movement."
+        }
       ],
       "windows": [
-        { "value": "full", "label": "2025–2026" },
-        { "value": "winter26", "label": "Nov ’25 – Apr ’26" }
+        { "value": "full", "label": "2025–2027" },
+        { "value": "winter26", "label": "Nov ’25 – May ’26" }
       ],
       "seriesLabels": ["Alpine Venue Corridors", "Milan Gateway", "National Baseline"],
       "seriesColors": ["#0f766e", "#1d4ed8", "#64748b"],
@@ -146,6 +199,10 @@
         {
           "heading": "Winter Spike vs. Long-Tail Legacy",
           "body": "Distinguish short-window Games rate/occupancy spikes from repeat alpine visitation and transport/infrastructure legacy."
+        },
+        {
+          "heading": "Capacity & Pricing Lens",
+          "body": "In constrained alpine valleys, price and occupancy surges can occur even where physical bed growth is limited."
         }
       ]
     },
@@ -160,12 +217,22 @@
       "kpis": [
         { "label": "Core Hubs", "value": "Rome · Florence · Venice · Milan", "meta": "High international & day-trip intensity", "positive": false },
         { "label": "Secondary & Alpine", "value": "Emilia-Romagna · Marche · Alps", "meta": "Broader seasonal & regional reach", "positive": true },
-        { "label": "Concentration Metric", "value": "HHI / Top-5 Share", "meta": "Compute from ISTAT regional nights", "positive": false },
-        { "label": "Pressure Metric", "value": "Nights vs. Residents", "meta": "Pair with short-term rental share", "positive": true }
+        { "label": "Concentration Metric", "value": "HHI / Top-3 Share", "meta": "Computed dynamically below", "positive": false },
+        { "label": "Pressure Metric", "value": "Nights / 1k Residents", "meta": "Relative local density indicator", "positive": true }
       ],
       "lenses": [
-        { "value": "all", "label": "2022 vs. 2025 Share (%)", "visible": [true, true] },
-        { "value": "y2025-only", "label": "2025 Share Only (%)", "visible": [false, true] }
+        {
+          "value": "all",
+          "label": "2022 vs. 2025 Share (%)",
+          "visible": [true, true],
+          "nuance": "<strong>Lens nuance:</strong> Compares each region's share of accommodation nights in 2022 vs. 2025; pair share shifts with HHI and per-resident intensity."
+        },
+        {
+          "value": "y2025-only",
+          "label": "2025 Share Only (%)",
+          "visible": [false, true],
+          "nuance": "<strong>Lens nuance:</strong> Shows the 2025 snapshot share; high share in large regions differs structurally from crowding in compact historic centers."
+        }
       ],
       "windows": [],
       "seriesLabels": ["2022 Night Share (%)", "2025 Night Share (%)"],
@@ -174,6 +241,8 @@
         {
           "label": "Lazio (Rome)",
           "v": [11.2, 12.1],
+          "populationK": 5710,
+          "nightsM": 46.5,
           "note": "Jubilee boost & capital demand",
           "forecast": false,
           "role": "Core Hub",
@@ -184,6 +253,8 @@
         {
           "label": "Veneto (Venice/Dolomites)",
           "v": [15.4, 14.8],
+          "populationK": 4850,
+          "nightsM": 56.9,
           "note": "Strong coastal, lake & alpine base",
           "forecast": false,
           "role": "Core + Alpine",
@@ -194,6 +265,8 @@
         {
           "label": "Lombardy (Milan/Lakes/Alps)",
           "v": [11.8, 12.4],
+          "populationK": 10020,
+          "nightsM": 47.7,
           "note": "Business, lakes & 2026 Olympics",
           "forecast": false,
           "role": "Gateway + Alpine",
@@ -204,6 +277,8 @@
         {
           "label": "Tuscany (Florence/Val d'Orcia)",
           "v": [10.9, 10.5],
+          "populationK": 3660,
+          "nightsM": 40.4,
           "note": "Art cities & rural/wine corridors",
           "forecast": false,
           "role": "Core + Rural",
@@ -214,6 +289,8 @@
         {
           "label": "Emilia-Romagna",
           "v": [9.4, 9.7],
+          "populationK": 4460,
+          "nightsM": 37.3,
           "note": "Riviera, food/motor valley & cities",
           "forecast": false,
           "role": "Secondary / Diversified",
@@ -224,6 +301,8 @@
         {
           "label": "Trentino-Alto Adige/Südtirol",
           "v": [11.5, 11.6],
+          "populationK": 1085,
+          "nightsM": 44.6,
           "note": "High alpine hiking & ski tourism",
           "forecast": false,
           "role": "Alpine / Nature",
@@ -235,7 +314,7 @@
       "notes": [
         {
           "heading": "Concentration vs. Dispersal",
-          "body": "A falling top-region share or rising secondary-region growth rate signals broader dispersal—provided growth isn't just moving to a few new bottlenecks."
+          "body": "A falling top-region share or lower HHI (sum of squared shares) signals broader distribution—provided growth isn't just moving to a few new bottlenecks."
         },
         {
           "heading": "Overtourism Context",
