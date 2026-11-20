@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Italy Tourism Observatory (2022–2027)</title>
+  <title>Italy Tourism Observatory (2022–2026)</title>
   <link rel="stylesheet" href="./styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 </head>
@@ -14,7 +14,7 @@
         <p class="eyebrow">Italy Tourism Observatory · GitHub Pages Edition</p>
         <h1 id="page-title">2022–2026 Trajectory</h1>
         <p class="subtitle" id="page-subtitle">
-          Post-pandemic recovery, shoulder-season expansion, mega-events, and regional dispersal across Italy.
+          Post-pandemic recovery, seasonal shoulder expansion, and mega-event waves across Italy.
         </p>
       </div>
       <nav class="tab-bar" aria-label="Dashboard sections">
@@ -27,19 +27,16 @@
   </header>
 
   <main class="container main-content">
-    <!-- Static Reference KPI Strip -->
-    <section class="kpi-grid" id="kpi-grid" aria-label="Key reference metrics"></section>
-
-    <!-- Dynamic Filtered KPI Strip -->
-    <section class="kpi-grid live-kpi-grid" id="live-kpi-grid" aria-label="Live computed metrics"></section>
+    <!-- Dynamic KPI Strip -->
+    <section class="kpi-grid" id="kpi-grid" aria-label="Key metrics"></section>
 
     <!-- Primary Chart Panel -->
     <section class="panel" aria-labelledby="chart-heading">
       <div class="panel-header">
         <div>
-          <h2 id="chart-heading">National &amp; Corridor Index (2022–2027)</h2>
+          <h2 id="chart-heading">Monthly Tourism Trajectory</h2>
           <p class="panel-desc" id="chart-desc">
-            Indexed to Jan 2022 = 100. Hover any period for context notes.
+            Indexed to Jan 2022 baseline (100). Switch lenses or time windows to inspect shifts.
           </p>
         </div>
 
@@ -53,27 +50,8 @@
             <span class="control-label">Time Window</span>
             <div class="segmented-control" id="window-buttons" role="group" aria-label="Time Window"></div>
           </div>
-
-          <div class="control-group">
-            <span class="control-label">2027 Projections</span>
-            <label class="toggle-control">
-              <input type="checkbox" id="forecast-toggle" checked />
-              <span>Show 2027 Forecast</span>
-            </label>
-          </div>
-
-          <div class="control-group" id="scenario-control-group">
-            <label for="scenario-select">2027 Scenario</label>
-            <select id="scenario-select">
-              <option value="0.97">Conservative (-3%)</option>
-              <option value="1" selected>Base (0%)</option>
-              <option value="1.04">Upside (+4%)</option>
-            </select>
-          </div>
         </div>
       </div>
-
-      <div class="nuance-banner" id="lens-nuance-banner"></div>
 
       <div class="chart-wrap">
         <canvas id="mainChart"></canvas>
@@ -87,35 +65,19 @@
       <div class="panel-header">
         <div>
           <h2 id="regional-table-heading">Regional Concentration &amp; Dispersal Snapshot</h2>
-          <p class="panel-desc" id="dispersal-metrics-summary">
+          <p class="panel-desc">
             Compare top honeypot hubs against secondary and alpine/rural corridors.
           </p>
-        </div>
-        <div class="controls-row">
-          <div class="control-group">
-            <label for="role-filter">Filter by Role</label>
-            <select id="role-filter">
-              <option value="all">All Roles</option>
-              <option value="Core Hub">Core Hub</option>
-              <option value="Core + Alpine">Core + Alpine</option>
-              <option value="Gateway + Alpine">Gateway + Alpine</option>
-              <option value="Core + Rural">Core + Rural</option>
-              <option value="Secondary / Diversified">Secondary / Diversified</option>
-              <option value="Alpine / Nature">Alpine / Nature</option>
-            </select>
-          </div>
         </div>
       </div>
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th><button class="sort-btn" type="button" data-sort="label">Region / Corridor</button></th>
-              <th><button class="sort-btn" type="button" data-sort="role">Role</button></th>
-              <th><button class="sort-btn" type="button" data-sort="share25">2025 Share (%)</button></th>
-              <th><button class="sort-btn" type="button" data-sort="delta">Share Shift</button></th>
-              <th><button class="sort-btn" type="button" data-sort="intensity">Nights / 1k Pop.</button></th>
-              <th>Seasonality</th>
+              <th>Region / Corridor</th>
+              <th>Role</th>
+              <th>2022–2026 Trend</th>
+              <th>Seasonality Profile</th>
               <th>Pressure Signal</th>
             </tr>
           </thead>
@@ -130,95 +92,202 @@
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <span id="sources-text">Sources: ISTAT, ENIT / Ministry of Tourism, Jubilee &amp; Milano Cortina releases</span>
-      <span id="data-status-badge" class="badge">Loading ./data/processed/tourism_dashboard.json…</span>
+      <span>Sources: ISTAT, ENIT / Ministry of Tourism, Jubilee &amp; Milano Cortina releases</span>
+      <span id="data-status-badge" class="badge">Checking JSON files…</span>
     </div>
   </footer>
 
   <script>
-    const BUNDLE_URL = "./data/processed/tourism_dashboard.json";
-
-    const FALLBACK_DATA = {
-      meta: {
-        title: "Italy Tourism Observatory (2022–2027)",
-        sources: "ISTAT, ENIT / Ministry of Tourism, Jubilee & Milano Cortina releases",
-        status: "Fallback Baseline · JSON Not Found"
+    const TAB_CONFIG = {
+      trajectory: {
+        dataUrl: "./data/processed/trajectory.json",
+        _loadedRows: null,
+        title: "2022–2026 Trajectory",
+        subtitle: "Post-pandemic rebound, shoulder-season growth, and mega-event waves across Italy.",
+        chartHeading: "National & Corridor Index (2022–2026)",
+        chartDesc: "Indexed to Jan 2022 = 100. Hover any period for context notes.",
+        chartType: "line",
+        callout: "<strong>Trajectory takeaway:</strong> Strong summer peaks are increasingly paired with spring/autumn shoulder demand and event spikes in 2025–2026.",
+        kpis: [
+          { label: "2024 Inbound Arrivals", value: "~57.7M", meta: "~381M international nights", positive: false },
+          { label: "2025 Visitor Volume", value: "~87.9M", meta: "Record annual momentum", positive: true },
+          { label: "Shoulder Expansion", value: "Apr–Jun / Sep–Nov", meta: "Broadening beyond peak summer", positive: true },
+          { label: "Event Window Span", value: "Dec 2024 – Feb 2026", meta: "Jubilee & Winter Olympics", positive: false }
+        ],
+        lenses: [
+          { value: "all", label: "All Series", visible: [true, true, true, true] },
+          { value: "national-vs-secondary", label: "National vs. Secondary Regions", visible: [true, false, false, true] },
+          { value: "event-corridors", label: "Rome/Lazio vs. Northern/Alpine", visible: [false, true, true, false] }
+        ],
+        windows: [
+          { value: "full", label: "2022–2026" },
+          { value: "recent", label: "2024–2026" }
+        ],
+        seriesLabels: ["National Index", "Rome & Lazio", "Northern & Alpine", "Secondary Regions"],
+        seriesColors: ["#1d4ed8", "#b45309", "#0f766e", "#6d28d9"],
+        rows: [
+          { label: "2022-01", v: [100, 100, 100, 100], note: "Early 2022 recovery baseline" },
+          { label: "2022-07", v: [148, 146, 152, 145], note: "Post-lockdown summer rebound" },
+          { label: "2023-07", v: [164, 166, 162, 161], note: "Strong international return" },
+          { label: "2024-07", v: [176, 178, 173, 175], note: "Pre-Jubilee summer peak" },
+          { label: "2024-12", v: [142, 156, 145, 136], note: "Jubilee Holy Door opens (Dec 24, 2024)" },
+          { label: "2025-07", v: [192, 208, 182, 186], note: "Peak 2025 summer & Youth Jubilee wave" },
+          { label: "2026-02", v: [158, 154, 194, 151], note: "Milano Cortina Winter Olympics (Feb 6–22, 2026)" },
+          { label: "2026-07", v: [196, 190, 188, 194], note: "Post-Olympics summer & continued dispersal" }
+        ],
+        notes: [
+          {
+            heading: "Macro Recovery to Record Volume",
+            body: "After rapid post-pandemic gains in 2022–2024, 2025 saw record visitor activity while shoulder months carried a larger share of annual demand."
+          },
+          {
+            heading: "Two Distinct Mega-Event Shapes",
+            body: "The 2025 Jubilee stretched across more than a year in Rome/Lazio, whereas the February 2026 Winter Olympics created a sharp winter spike in Northern & Alpine corridors."
+          }
+        ],
+        showRegionalTable: false
       },
-      tabs: {
-        trajectory: {
-          title: "2022–2026 Trajectory",
-          subtitle: "Post-pandemic rebound, shoulder-season growth, and mega-event waves across Italy.",
-          chartHeading: "National & Corridor Index (2022–2027)",
-          chartDesc: "Indexed to Jan 2022 = 100. Dashed segments indicate 2027 scenario projections.",
-          chartType: "line",
-          callout: "<strong>Trajectory takeaway:</strong> Strong summer peaks are increasingly paired with spring/autumn shoulder demand and event spikes in 2025–2026.",
-          showRegionalTable: false,
-          kpis: [
-            { label: "2024 Inbound Arrivals", value: "~57.7M", meta: "~381M international nights", positive: false },
-            { label: "2025 Visitor Volume", value: "~87.9M", meta: "Record annual momentum", positive: true },
-            { label: "Shoulder Expansion", value: "Apr–Jun / Sep–Nov", meta: "Broadening beyond peak summer", positive: true },
-            { label": "Event Window Span", value: "Dec 2024 – Feb 2026", meta: "Jubilee & Winter Olympics", positive: false }
-          ],
-          lenses: [
-            {
-              value: "all",
-              label: "All Series",
-              visible: [true, true, true, true],
-              nuance: "<strong>Lens nuance:</strong> Compares national index movement against Rome/Lazio, Northern/Alpine corridors, and secondary regions on a common Jan 2022 = 100 base."
-            },
-            {
-              value: "national-vs-secondary",
-              label: "National vs. Secondary Regions",
-              visible: [true, false, false, true],
-              nuance: "<strong>Lens nuance:</strong> Tracks whether secondary/non-honeypot regions are compounding at or above the national pace."
-            },
-            {
-              value: "event-corridors",
-              label: "Rome/Lazio vs. Northern/Alpine",
-              visible: [false, true, true, false],
-              nuance: "<strong>Lens nuance:</strong> Contrasts the multi-month 2025 Jubilee corridor against the sharp Feb 2026 Winter Olympics window."
-            }
-          ],
-          windows: [
-            { value: "full", label: "2022–2027" },
-            { value: "recent", label: "2024–2027" }
-          ],
-          seriesLabels: ["National Index", "Rome & Lazio", "Northern & Alpine", "Secondary Regions"],
-          seriesColors: ["#1d4ed8", "#b45309", "#0f766e", "#6d28d9"],
-          rows: [
-            { label: "2022-01", v: [100.0, 100.0, 100.0, 100.0], note: "Early 2022 recovery baseline", forecast: false },
-            { label: "2022-07", v: [148.0, 146.0, 152.0, 145.0], note: "Post-lockdown summer rebound", forecast: false },
-            { label: "2023-07", v: [164.0, 166.0, 162.0, 161.0], note: "Strong international return", forecast: false },
-            { label: "2024-07", v: [176.0, 178.0, 173.0, 175.0], note: "Pre-Jubilee summer peak", forecast: false },
-            { label: "2024-12", v: [142.0, 156.0, 145.0, 136.0], note: "Jubilee Holy Door opens (Dec 24, 2024)", forecast: false },
-            { label: "2025-07", v: [192.0, 208.0, 182.0, 186.0], note: "Peak 2025 summer & Youth Jubilee wave", forecast: false },
-            { label: "2026-02", v: [158.0, 154.0, 194.0, 151.0], note: "Milano Cortina Winter Olympics (Feb 6–22, 2026)", forecast: false },
-            { label: "2026-07", v: [196.0, 190.0, 188.0, 194.0], note: "Post-Olympics summer & continued dispersal", forecast: false },
-            { label: "2027-02", v: [162.0, 157.0, 186.0, 156.0], note: "Projected winter baseline post-Games", forecast: true },
-            { label: "2027-07", v: [200.0, 193.0, 191.0, 199.0], note: "Projected summer with continued shoulder/secondary growth", forecast: true }
-          ],
-          notes: [
-            {
-              heading: "Macro Recovery to Record Volume",
-              body: "After rapid post-pandemic gains in 2022–2024, 2025 saw record visitor activity while shoulder months carried a larger share of annual demand."
-            },
-            {
-              heading: "Two Distinct Mega-Event Shapes",
-              body: "The 2025 Jubilee stretched across more than a year in Rome/Lazio, whereas the February 2026 Winter Olympics created a sharp winter spike in Northern & Alpine corridors."
-            }
-          ]
-        }
+
+      jubilee: {
+        dataUrl: "./data/processed/jubilee_2025.json",
+        _loadedRows: null,
+        title: "2025 Jubilee Deep Dive",
+        subtitle: "Pilgrimage waves from Dec 24, 2024 through Jan 6, 2026 alongside Rome arrivals and Lazio spend.",
+        chartHeading: "Jubilee Wave vs. Rome Arrivals & Lazio Spend",
+        chartDesc: "Indexed to Jan 2024 = 100. Compare day/pilgrimage intensity against overnight and spending series.",
+        chartType: "line",
+        callout: "<strong>Jubilee takeaway:</strong> Total pilgrimage counts (~33.5M) capture same-day and liturgical waves alongside Rome's 22.9M arrivals and €10.25B Lazio international spend in 2025.",
+        kpis: [
+          { label: "Jubilee Participation", value: "~33.5M", meta: "Dec 2024 – Jan 2026 scope", positive: true },
+          { label: "Rome Arrivals (2025)", value: "22.9M", meta: "52.92M overnight stays", positive: false },
+          { label: "Lazio Intl. Spend (2025)", value: "€10.25B", meta: "+19.2% YoY gain", positive: true },
+          { label: "Rome Airports (2025)", value: "55.3M", meta: "Fiumicino & Ciampino", positive: false }
+        ],
+        lenses: [
+          { value: "all", label: "All Jubilee Series", visible: [true, true, true, true] },
+          { value: "wave-arrivals", label: "Jubilee Wave vs. Rome Arrivals", visible: [true, true, false, false] },
+          { value: "vatican-spend", label: "Vatican Corridor vs. Lazio Spend", visible: [false, false, true, true] }
+        ],
+        windows: [
+          { value: "full", label: "2024–2026" },
+          { value: "jubilee", label: "Dec ’24 – Jan ’26" }
+        ],
+        seriesLabels: ["Rome Arrivals", "Jubilee Wave", "Vatican Corridor", "Lazio Intl. Spend"],
+        seriesColors: ["#1d4ed8", "#b45309", "#0f766e", "#6d28d9"],
+        rows: [
+          { label: "2024-01", v: [100, 100, 100, 100], note: "2024 baseline month" },
+          { label: "2024-07", v: [136, 110, 114, 132], note: "Summer leisure baseline" },
+          { label: "2024-12", v: [116, 134, 138, 119], note: "Holy Door opens (Dec 24, 2024)" },
+          { label: "2025-04", v: [129, 148, 152, 134], note: "Spring Jubilee & Easter gatherings" },
+          { label: "2025-07", v: [147, 184, 176, 156], note: "Jubilee of Young People peak wave" },
+          { label: "2025-10", v: [135, 150, 154, 142], note: "Autumn pilgrimage wave" },
+          { label: "2026-01", v: [115, 128, 126, 118], note: "Holy Door closes (Jan 6, 2026)" },
+          { label: "2026-06", v: [138, 110, 114, 135], note: "Post-Jubilee normalization" }
+        ],
+        notes: [
+          {
+            heading: "Pilgrims vs. Bed-Nights",
+            body: "Separate same-day pilgrimage and liturgical counts from hotel/short-term rental bed-nights so accommodation capacity is interpreted accurately."
+          },
+          {
+            heading: "Vatican & Lazio Spillover",
+            body: "Track Vatican/Prati/Borgo and Major Basilica activity alongside Lazio international expenditure and airport traffic."
+          }
+        ],
+        showRegionalTable: false
+      },
+
+      olympics: {
+        dataUrl: "./data/processed/olympics_2026.json",
+        _loadedRows: null,
+        title: "2026 Winter Olympics (Milano Cortina)",
+        subtitle: "February 6–22, 2026 winter spike across Milan and alpine venue clusters vs. post-Games normalization.",
+        chartHeading: "Winter Olympics Corridor & Seasonal Shift",
+        chartDesc: "Indexed to Jan 2025 = 100. Contrast alpine clusters, Milan gateway demand, and post-Feb normalization.",
+        chartType: "line",
+        callout: "<strong>Olympics takeaway:</strong> Milano Cortina (Feb 6–22, 2026) concentrated winter demand around Milan and alpine competition hubs before returning toward seasonal baselines.",
+        kpis: [
+          { label: "Games Window", value: "Feb 6–22, 2026", meta: "Milano Cortina Winter Olympics", positive: true },
+          { label: "Primary Hubs", value: "Milan & Alps", meta: "Cortina, Livigno, Bormio, Val di Fiemme", positive: false },
+          { label: "Peak Signal", value: "Feb 2026 Spike", meta: "Mid-winter surge vs. typical Feb", positive: true },
+          { label: "Post-Event Phase", value: "Mar–Apr 2026", meta: "Spring normalization & shoulder shift", positive: false }
+        ],
+        lenses: [
+          { value: "all", label: "All Olympics Series", visible: [true, true, true] },
+          { value: "alpine-vs-milan", label: "Alpine Clusters vs. Milan Gateway", visible: [true, true, false] },
+          { value: "alpine-vs-national", label: "Alpine Clusters vs. National", visible: [true, false, true] }
+        ],
+        windows: [
+          { value: "full", label: "2025–2026" },
+          { value: "winter26", label: "Nov ’25 – Apr ’26" }
+        ],
+        seriesLabels: ["Alpine Venue Corridors", "Milan Gateway", "National Baseline"],
+        seriesColors: ["#0f766e", "#1d4ed8", "#64748b"],
+        rows: [
+          { label: "2025-01", v: [100, 100, 100], note: "Prior-year winter baseline" },
+          { label: "2025-07", v: [128, 122, 134], note: "Summer mountain & city travel" },
+          { label: "2025-11", v: [108, 118, 106], note: "Pre-winter shoulder" },
+          { label: "2026-01", v: [134, 126, 112], note: "Pre-Games ramp-up" },
+          { label: "2026-02", v: [188, 162, 124], note: "Milano Cortina Winter Olympics (Feb 6–22, 2026)" },
+          { label: "2026-03", v: [132, 124, 118], note: "Post-Games transition" },
+          { label: "2026-05", v: [110, 125, 128], note: "Spring normalization" }
+        ],
+        notes: [
+          {
+            heading: "Distributed Alpine Footprint",
+            body: "Unlike single-city Games, Milano Cortina spans Lombardy, Veneto, and Trentino/Alto Adige—requiring cluster-level tracking rather than a single city metric."
+          },
+          {
+            heading: "Winter Spike vs. Long-Tail Legacy",
+            body: "Distinguish short-window Games rate/occupancy spikes from repeat alpine visitation and transport/infrastructure legacy."
+          }
+        ],
+        showRegionalTable: false
+      },
+
+      dispersal: {
+        dataUrl: "./data/processed/regional_dispersal.json",
+        _loadedRows: null,
+        title: "Regional Dispersal & Pressure",
+        subtitle: "Comparing core honeypot hubs against secondary, mountain, and rural regions across Italy.",
+        chartHeading: "Regional Share & Growth Profile (Prototype)",
+        chartDesc: "Compare accommodation night share across major corridors and secondary/alpine regions.",
+        chartType: "bar",
+        callout: "<strong>Dispersal takeaway:</strong> Tracking secondary and mountain/rural regions alongside core hubs shows whether growth is relieving or shifting pressure.",
+        kpis: [
+          { label: "Core Hubs", value: "Rome · Florence · Venice · Milan", meta: "High international & day-trip intensity", positive: false },
+          { label: "Secondary & Alpine", value: "Emilia-Romagna · Marche · Alps", meta: "Broader seasonal & regional reach", positive: true },
+          { label: "Concentration Metric", value: "HHI / Top-5 Share", meta: "Compute from ISTAT regional nights", positive: false },
+          { label: "Pressure Metric", value: "Nights vs. Residents", meta: "Pair with short-term rental share", positive: true }
+        ],
+        lenses: [
+          { value: "all", label: "2022 vs. 2025 Share (%)", visible: [true, true] },
+          { value: "y2025-only", label: "2025 Share Only (%)", visible: [false, true] }
+        ],
+        windows: [],
+        seriesLabels: ["2022 Night Share (%)", "2025 Night Share (%)"],
+        seriesColors: ["#94a3b8", "#1d4ed8"],
+        rows: [
+          { label: "Lazio (Rome)", v: [11.2, 12.1], note: "Jubilee boost & capital demand", role: "Core Hub", trend: "Up (Jubilee lift)", season: "Year-round + spikes", pressure: "High urban density" },
+          { label: "Veneto (Venice/Dolomites)", v: [15.4, 14.8], note: "Strong coastal, lake & alpine base", role: "Core + Alpine", trend: "High volume, shifting mix", season: "Spring–Autumn + Winter", pressure: "Very high in Venice" },
+          { label: "Lombardy (Milan/Lakes/Alps)", v: [11.8, 12.4], note: "Business, lakes & 2026 Olympics", role: "Gateway + Alpine", trend: "Steady upward", season: "Year-round + Feb peak", pressure: "Moderate–High" },
+          { label: "Tuscany (Florence/Val d'Orcia)", v: [10.9, 10.5], note: "Art cities & rural/wine corridors", role: "Core + Rural", trend: "High baseline", season: "Spring–Autumn", pressure: "High in historic centers" },
+          { label: "Emilia-Romagna", v: [9.4, 9.7], note: "Riviera, food/motor valley & cities", role: "Secondary / Diversified", trend: "Gradual dispersal", season: "Summer + Shoulder", pressure: "Moderate" },
+          { label: "Trentino-Alto Adige", v: [11.5, 11.6], note: "High alpine hiking & ski tourism", role: "Alpine / Nature", trend: "Resilient two-season", season: "Summer & Winter", pressure: "Seasonal mountain peak" }
+        ],
+        notes: [
+          {
+            heading: "Concentration vs. Dispersal",
+            body: "A falling top-region share or rising secondary-region growth rate signals broader dispersal—provided growth isn't just moving to a few new bottlenecks."
+          },
+          {
+            heading: "Overtourism Context",
+            body: "High visitor counts mean different things in a dense historic center than in a larger region; normalize by local population and bed capacity."
+          }
+        ],
+        showRegionalTable: true
       }
     };
-
-    let dashboardData = null;
-    let activeTabKey = "trajectory";
-    let activeWindowValue = "full";
-    let showForecast2027 = true;
-    let forecastMultiplier = 1;
-    let currentFilteredRows = [];
-    let tableSort = { key: "share25", dir: "desc" };
-    let roleFilterValue = "all";
 
     const ctx = document.getElementById("mainChart").getContext("2d");
     const mainChart = new Chart(ctx, {
@@ -231,22 +300,10 @@
         plugins: {
           tooltip: {
             callbacks: {
-              label(context) {
-                const val = context.parsed.y;
-                const row = currentFilteredRows[context.dataIndex];
-                if (typeof val !== "number" || Number.isNaN(val)) return `${context.dataset.label}: —`;
-                if (row && isForecastRow(row) && forecastMultiplier !== 1) {
-                  const baseVal = Number(row.v[context.datasetIndex]);
-                  return `${context.dataset.label}: ${val.toFixed(1)} (base ${baseVal.toFixed(1)})`;
-                }
-                return `${context.dataset.label}: ${val.toFixed(1)}`;
-              },
               afterBody(items) {
                 const idx = items[0]?.dataIndex ?? 0;
                 const row = currentFilteredRows[idx];
-                if (!row) return "";
-                const tag = row.forecast ? " [2027 Forecast]" : "";
-                return row.note ? `\nNote${tag}: ${row.note}` : tag ? `\n${tag.trim()}` : "";
+                return row && row.note ? `\nNote: ${row.note}` : "";
               }
             }
           }
@@ -254,30 +311,27 @@
       }
     });
 
-    function isForecastRow(row) {
-      return Boolean(row.forecast) || String(row.label || "").startsWith("2027");
+    let activeTabKey = "trajectory";
+    let activeWindowValue = "full";
+    let currentFilteredRows = [];
+
+    function getActiveRows(cfg) {
+      return Array.isArray(cfg._loadedRows) && cfg._loadedRows.length > 0
+        ? cfg._loadedRows
+        : cfg.rows;
     }
 
-    function getAdjustedValue(row, seriesIdx) {
-      const raw = Number(row.v[seriesIdx] ?? 0);
-      if (!isForecastRow(row)) return raw;
-      return Number((raw * forecastMultiplier).toFixed(2));
-    }
-
-    function normalizeRows(rows, seriesCount) {
-      if (!Array.isArray(rows)) return [];
-      return rows.map((item) => {
+    function normalizeJsonRows(rawData, seriesCount) {
+      if (!Array.isArray(rawData) || rawData.length === 0) return null;
+      return rawData.map((item) => {
         const label = String(item.label ?? item.month ?? item.region ?? "");
-        const v = Array.isArray(item.v)
+        const values = Array.isArray(item.v)
           ? item.v.slice(0, seriesCount).map((n) => Number(n))
           : Array.from({ length: seriesCount }, (_, i) => Number(item[`s${i + 1}`] ?? 0));
         return {
           label,
-          v,
-          populationK: item.populationK ? Number(item.populationK) : null,
-          nightsM: item.nightsM ? Number(item.nightsM) : null,
+          v: values,
           note: item.note ?? item.key_jubilee_event ?? "",
-          forecast: Boolean(item.forecast) || label.startsWith("2027"),
           role: item.role,
           trend: item.trend,
           season: item.season,
@@ -286,50 +340,49 @@
       });
     }
 
-    async function loadBundle() {
+    async function loadTabData(tabKey) {
+      const cfg = TAB_CONFIG[tabKey];
       const badge = document.getElementById("data-status-badge");
+
+      if (!cfg.dataUrl) {
+        if (badge) badge.textContent = "Prototype Baseline · Static Config";
+        return;
+      }
+
+      if (Array.isArray(cfg._loadedRows)) {
+        if (badge) badge.textContent = `Loaded · ${cfg.dataUrl}`;
+        return;
+      }
+
       try {
-        const res = await fetch(BUNDLE_URL, { cache: "no-store" });
+        const res = await fetch(cfg.dataUrl, { cache: "no-store" });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
-        if (!json || !json.tabs) throw new Error("Invalid bundle structure");
-        dashboardData = json;
-        if (badge) badge.textContent = json.meta?.status || `Live JSON · ${BUNDLE_URL}`;
+        const normalized = normalizeJsonRows(json, cfg.seriesLabels.length);
+        if (!normalized) throw new Error("Empty or invalid JSON array");
+
+        cfg._loadedRows = normalized;
+        if (badge) badge.textContent = `Live JSON · ${cfg.dataUrl}`;
       } catch (_err) {
-        dashboardData = FALLBACK_DATA;
-        if (badge) badge.textContent = FALLBACK_DATA.meta.status;
+        cfg._loadedRows = null;
+        if (badge) badge.textContent = `Prototype Fallback · ${cfg.dataUrl} not found`;
       }
-
-      if (dashboardData.meta?.sources) {
-        document.getElementById("sources-text").textContent = `Sources: ${dashboardData.meta.sources}`;
-      }
-      if (dashboardData.meta?.title) {
-        document.title = dashboardData.meta.title;
-      }
-    }
-
-    function getTabConfig(tabKey) {
-      return dashboardData?.tabs?.[tabKey] || FALLBACK_DATA.tabs.trajectory;
     }
 
     function filterRowsForTab(tabKey, rows, windowValue) {
-      let filtered = rows;
-      if (!showForecast2027) {
-        filtered = filtered.filter((r) => !isForecastRow(r));
-      }
       if (tabKey === "jubilee" && windowValue === "jubilee") {
-        return filtered.filter((r) => r.label >= "2024-12" && r.label <= "2026-01");
+        return rows.filter((r) => r.label >= "2024-12" && r.label <= "2026-01");
       }
       if (tabKey === "trajectory" && windowValue === "recent") {
-        return filtered.filter((r) => r.label >= "2024-01");
+        return rows.filter((r) => r.label >= "2024-01");
       }
       if (tabKey === "olympics" && windowValue === "winter26") {
-        return filtered.filter((r) => r.label >= "2025-11" && r.label <= "2026-05");
+        return rows.filter((r) => r.label >= "2025-11" && r.label <= "2026-05");
       }
-      return filtered;
+      return rows;
     }
 
-    function renderKpis(kpis = []) {
+    function renderKpis(kpis) {
       const grid = document.getElementById("kpi-grid");
       grid.innerHTML = kpis
         .map(
@@ -344,74 +397,7 @@
         .join("");
     }
 
-    function renderLiveKpis(cfg, lensObj) {
-      const grid = document.getElementById("live-kpi-grid");
-      if (!currentFilteredRows.length) {
-        grid.innerHTML = "";
-        return;
-      }
-
-      const activeIndices = cfg.seriesLabels
-        .map((_, idx) => idx)
-        .filter((idx) => lensObj.visible?.[idx] ?? true);
-
-      const primaryIdx = activeIndices[0] ?? 0;
-      const seriesName = cfg.seriesLabels[primaryIdx] || "Series";
-      const seriesVals = currentFilteredRows.map((r) => getAdjustedValue(r, primaryIdx));
-
-      const firstVal = seriesVals[0];
-      const lastVal = seriesVals[seriesVals.length - 1];
-      const delta = firstVal ? ((lastVal - firstVal) / firstVal) * 100 : 0;
-      const peakVal = Math.max(...seriesVals);
-      const peakRow = currentFilteredRows[seriesVals.indexOf(peakVal)];
-
-      const forecastRows = currentFilteredRows.filter((r) => isForecastRow(r));
-      const forecastMeta =
-        forecastRows.length > 0
-          ? `${forecastRows.length} projected pts (${forecastMultiplier === 1 ? "Base 0%" : `${Math.round((forecastMultiplier - 1) * 100)}%`})`
-          : "2027 forecast hidden or N/A";
-
-      const cards = [
-        {
-          label: `Window Change · ${seriesName}`,
-          value: `${delta >= 0 ? "+" : ""}${delta.toFixed(1)}%`,
-          meta: `${currentFilteredRows[0].label} (${firstVal.toFixed(1)}) → ${currentFilteredRows[currentFilteredRows.length - 1].label} (${lastVal.toFixed(1)})`,
-          positive: delta > 0
-        },
-        {
-          label: `Peak in Window · ${seriesName}`,
-          value: peakVal.toFixed(1),
-          meta: `Reached in ${peakRow?.label || "—"}`,
-          positive: true
-        },
-        {
-          label: "Active Filter Scope",
-          value: `${currentFilteredRows.length} pts`,
-          meta: `${activeIndices.length} of ${cfg.seriesLabels.length} series shown`,
-          positive: false
-        },
-        {
-          label: "Forecast Status",
-          value: showForecast2027 ? "Enabled" : "Hidden",
-          meta: forecastMeta,
-          positive: showForecast2027
-        }
-      ];
-
-      grid.innerHTML = cards
-        .map(
-          (c) => `
-          <article class="kpi-card live-kpi-card">
-            <span class="kpi-label">${c.label}</span>
-            <strong class="kpi-value">${c.value}</strong>
-            <span class="kpi-meta ${c.positive ? "positive" : ""}">${c.meta}</span>
-          </article>
-        `
-        )
-        .join("");
-    }
-
-    function renderNotes(notes = []) {
+    function renderNotes(notes) {
       const grid = document.getElementById("notes-grid");
       grid.innerHTML = notes
         .map(
@@ -425,66 +411,21 @@
         .join("");
     }
 
-    function enrichRegionalRows(rows) {
-      return rows.map((r) => {
-        const share22 = Number(r.v[0] ?? 0);
-        const share25 = Number(r.v[1] ?? 0);
-        const delta = Number((share25 - share22).toFixed(1));
-        const intensity =
-          r.populationK && r.nightsM
-            ? Number(((r.nightsM * 1000) / r.populationK).toFixed(1))
-            : null;
-        return { ...r, share22, share25, delta, intensity };
-      });
-    }
-
     function renderRegionalTable(rows, show) {
       const panel = document.getElementById("regional-table-panel");
       const tbody = document.getElementById("regional-table-body");
-      const summaryEl = document.getElementById("dispersal-metrics-summary");
-
       if (!show) {
         panel.classList.add("is-hidden");
         return;
       }
       panel.classList.remove("is-hidden");
-
-      const enrichedAll = enrichRegionalRows(rows);
-      const shares25Decimal = enrichedAll.map((r) => r.share25 / 100);
-      const hhi = Math.round(shares25Decimal.reduce((acc, s) => acc + s * s, 0) * 10000);
-      const top3Share = [...enrichedAll]
-        .sort((a, b) => b.share25 - a.share25)
-        .slice(0, 3)
-        .reduce((acc, r) => acc + r.share25, 0);
-
-      if (summaryEl) {
-        summaryEl.textContent = `Sample HHI (scaled): ${hhi} · Top-3 Share (2025): ${top3Share.toFixed(1)}%. Click column headers to sort.`;
-      }
-
-      let displayRows = enrichedAll;
-      if (roleFilterValue !== "all") {
-        displayRows = displayRows.filter((r) => r.role === roleFilterValue);
-      }
-
-      displayRows.sort((a, b) => {
-        const dir = tableSort.dir === "asc" ? 1 : -1;
-        const valA = a[tableSort.key];
-        const valB = b[tableSort.key];
-        if (typeof valA === "number" && typeof valB === "number") {
-          return (valA - valB) * dir;
-        }
-        return String(valA || "").localeCompare(String(valB || "")) * dir;
-      });
-
-      tbody.innerHTML = displayRows
+      tbody.innerHTML = rows
         .map(
           (r) => `
           <tr>
             <td><strong>${r.label}</strong></td>
             <td>${r.role || "—"}</td>
-            <td>${r.share25.toFixed(1)}%</td>
-            <td>${r.delta >= 0 ? "+" : ""}${r.delta.toFixed(1)} pp</td>
-            <td>${r.intensity !== null ? `${r.intensity.toLocaleString()}` : "—"}</td>
+            <td>${r.trend || "—"}</td>
             <td>${r.season || "—"}</td>
             <td>${r.pressure || "—"}</td>
           </tr>
@@ -493,21 +434,9 @@
         .join("");
     }
 
-    function renderNuanceBanner(lensObj) {
-      const banner = document.getElementById("lens-nuance-banner");
-      if (!banner) return;
-      if (lensObj?.nuance) {
-        banner.innerHTML = lensObj.nuance;
-        banner.classList.remove("is-hidden");
-      } else {
-        banner.classList.add("is-hidden");
-      }
-    }
-
     function renderControls(cfg) {
       const lensSelect = document.getElementById("lens-select");
-      const lenses = cfg.lenses || [{ value: "all", label: "All Series", visible: [] }];
-      lensSelect.innerHTML = lenses
+      lensSelect.innerHTML = cfg.lenses
         .map((l) => `<option value="${l.value}">${l.label}</option>`)
         .join("");
 
@@ -540,44 +469,25 @@
           });
         });
       }
-
-      const scenarioGroup = document.getElementById("scenario-control-group");
-      const hasForecasts = (cfg.rows || []).some((r) => isForecastRow(r));
-      scenarioGroup.classList.toggle("is-hidden", !hasForecasts || !showForecast2027);
     }
 
     function updateChartView() {
-      const cfg = getTabConfig(activeTabKey);
-      const lenses = cfg.lenses || [{ value: "all", label: "All Series", visible: [] }];
+      const cfg = TAB_CONFIG[activeTabKey];
       const lensValue = document.getElementById("lens-select").value;
-      const lensObj = lenses.find((l) => l.value === lensValue) || lenses[0];
+      const lensObj = cfg.lenses.find((l) => l.value === lensValue) || cfg.lenses[0];
+      const sourceRows = getActiveRows(cfg);
 
-      const scenarioGroup = document.getElementById("scenario-control-group");
-      const hasForecasts = (cfg.rows || []).some((r) => isForecastRow(r));
-      scenarioGroup.classList.toggle("is-hidden", !hasForecasts || !showForecast2027);
+      currentFilteredRows = filterRowsForTab(activeTabKey, sourceRows, activeWindowValue);
 
-      const normalizedAll = normalizeRows(cfg.rows, cfg.seriesLabels.length);
-      currentFilteredRows = filterRowsForTab(activeTabKey, normalizedAll, activeWindowValue);
-      const forecastFlags = currentFilteredRows.map((r) => isForecastRow(r));
-
-      mainChart.config.type = cfg.chartType || "line";
+      mainChart.config.type = cfg.chartType;
       mainChart.data.labels = currentFilteredRows.map((r) => r.label);
       mainChart.data.datasets = cfg.seriesLabels.map((label, idx) => ({
         label,
-        data: currentFilteredRows.map((r) => getAdjustedValue(r, idx)),
+        data: currentFilteredRows.map((r) => r.v[idx]),
         borderColor: cfg.seriesColors[idx],
         backgroundColor: cfg.seriesColors[idx],
         tension: 0.3,
-        hidden: !(lensObj.visible?.[idx] ?? true),
-        borderDash: cfg.chartType === "line" && forecastFlags.every(Boolean) ? [6, 6] : [],
-        segment: cfg.chartType === "line"
-          ? {
-              borderDash: (sCtx) =>
-                forecastFlags[sCtx.p0DataIndex] || forecastFlags[sCtx.p1DataIndex] ? [6, 6] : undefined
-            }
-          : undefined,
-        pointStyle: forecastFlags.map((f) => (f ? "rectRot" : "circle")),
-        pointRadius: forecastFlags.map((f) => (f ? 5 : 3.5))
+        hidden: !(lensObj.visible[idx] ?? true)
       }));
 
       mainChart.options.scales = {
@@ -589,13 +499,12 @@
       };
 
       mainChart.update();
-      renderNuanceBanner(lensObj);
-      renderLiveKpis(cfg, lensObj);
     }
 
-    function switchTab(tabKey) {
+    async function switchTab(tabKey) {
+      if (!TAB_CONFIG[tabKey]) return;
       activeTabKey = tabKey;
-      const cfg = getTabConfig(tabKey);
+      const cfg = TAB_CONFIG[tabKey];
 
       document.querySelectorAll(".tab-btn").forEach((btn) => {
         btn.classList.toggle("is-active", btn.dataset.tab === tabKey);
@@ -610,7 +519,11 @@
       renderKpis(cfg.kpis);
       renderControls(cfg);
       renderNotes(cfg.notes);
-      renderRegionalTable(normalizeRows(cfg.rows, cfg.seriesLabels.length), Boolean(cfg.showRegionalTable));
+
+      await loadTabData(tabKey);
+
+      const rowsForView = getActiveRows(cfg);
+      renderRegionalTable(rowsForView, cfg.showRegionalTable);
       updateChartView();
     }
 
@@ -620,39 +533,7 @@
 
     document.getElementById("lens-select").addEventListener("change", updateChartView);
 
-    document.getElementById("forecast-toggle").addEventListener("change", (e) => {
-      showForecast2027 = e.target.checked;
-      updateChartView();
-    });
-
-    document.getElementById("scenario-select").addEventListener("change", (e) => {
-      forecastMultiplier = Number(e.target.value) || 1;
-      updateChartView();
-    });
-
-    document.getElementById("role-filter").addEventListener("change", (e) => {
-      roleFilterValue = e.target.value;
-      const cfg = getTabConfig(activeTabKey);
-      renderRegionalTable(normalizeRows(cfg.rows, cfg.seriesLabels.length), Boolean(cfg.showRegionalTable));
-    });
-
-    document.querySelectorAll(".sort-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const key = btn.dataset.sort;
-        if (tableSort.key === key) {
-          tableSort.dir = tableSort.dir === "asc" ? "desc" : "asc";
-        } else {
-          tableSort = { key, dir: "desc" };
-        }
-        const cfg = getTabConfig(activeTabKey);
-        renderRegionalTable(normalizeRows(cfg.rows, cfg.seriesLabels.length), Boolean(cfg.showRegionalTable));
-      });
-    });
-
-    (async function init() {
-      await loadBundle();
-      switchTab("trajectory");
-    })();
+    switchTab("trajectory");
   </script>
 </body>
 </html>
