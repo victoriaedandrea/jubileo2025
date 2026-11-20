@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Italy Tourism (2022–2026) — 2025 Jubilee Deep Dive</title>
+  <title>Italy Tourism Observatory (2022–2026)</title>
   <link rel="stylesheet" href="./styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 </head>
@@ -12,142 +12,287 @@
     <div class="container header-inner">
       <div>
         <p class="eyebrow">Italy Tourism Observatory · GitHub Pages Edition</p>
-        <h1>2025 Jubilee Deep Dive (Rome &amp; Lazio)</h1>
-        <p class="subtitle">
-          Tracking pilgrimage waves from the Holy Door opening (Dec 24, 2024) through closing (Jan 6, 2026)
-          alongside Rome arrivals and Lazio international spending.
+        <h1 id="page-title">2022–2026 Trajectory</h1>
+        <p class="subtitle" id="page-subtitle">
+          Post-pandemic recovery, seasonal shoulder expansion, and mega-event waves across Italy.
         </p>
       </div>
       <nav class="tab-bar" aria-label="Dashboard sections">
-        <button class="tab-btn" type="button" data-section="overview">2022–2026 Trajectory</button>
-        <button class="tab-btn is-active" type="button" data-section="jubilee">2025 Jubilee</button>
-        <button class="tab-btn" type="button" data-section="olympics">2026 Olympics</button>
-        <button class="tab-btn" type="button" data-section="dispersal">Regional Dispersal</button>
+        <button class="tab-btn is-active" type="button" data-tab="trajectory">2022–2026 Trajectory</button>
+        <button class="tab-btn" type="button" data-tab="jubilee">2025 Jubilee</button>
+        <button class="tab-btn" type="button" data-tab="olympics">2026 Olympics</button>
+        <button class="tab-btn" type="button" data-tab="dispersal">Regional Dispersal</button>
       </nav>
     </div>
   </header>
 
   <main class="container main-content">
-    <!-- KPI Strip -->
-    <section class="kpi-grid" aria-label="Key Jubilee metrics">
-      <article class="kpi-card">
-        <span class="kpi-label">Jubilee Program Participation</span>
-        <strong class="kpi-value">~33.5M</strong>
-        <span class="kpi-meta">Dec 2024 – Jan 2026 cumulative scope</span>
-      </article>
-      <article class="kpi-card">
-        <span class="kpi-label">Rome City Arrivals (2025)</span>
-        <strong class="kpi-value">22.9M</strong>
-        <span class="kpi-meta">52.92M overnight stays in Rome</span>
-      </article>
-      <article class="kpi-card">
-        <span class="kpi-label">Lazio Intl. Spend (2025)</span>
-        <strong class="kpi-value">€10.25B</strong>
-        <span class="kpi-meta positive">+19.2% YoY (Jubilee-driven lift)</span>
-      </article>
-      <article class="kpi-card">
-        <span class="kpi-label">Rome Airport Throughput</span>
-        <strong class="kpi-value">55.3M</strong>
-        <span class="kpi-meta">Fiumicino &amp; Ciampino combined (2025)</span>
-      </article>
-    </section>
+    <!-- Dynamic KPI Strip -->
+    <section class="kpi-grid" id="kpi-grid" aria-label="Key metrics"></section>
 
-    <!-- Controls + Chart Panel -->
+    <!-- Primary Chart Panel -->
     <section class="panel" aria-labelledby="chart-heading">
       <div class="panel-header">
         <div>
-          <h2 id="chart-heading">Jubilee Wave vs. Rome Arrivals &amp; Lazio Spend</h2>
-          <p class="panel-desc">
-            Indexed to January 2024 baseline (100). Toggle lenses or inspect the active Jubilee window.
+          <h2 id="chart-heading">Monthly Tourism Trajectory</h2>
+          <p class="panel-desc" id="chart-desc">
+            Indexed to Jan 2022 baseline (100). Switch lenses or time windows to inspect shifts.
           </p>
         </div>
 
         <div class="controls-row">
           <div class="control-group">
-            <label for="lens-select">Metric Lens</label>
-            <select id="lens-select">
-              <option value="all">All Jubilee Series</option>
-              <option value="wave-vs-arrivals">Pilgrimage Wave vs. Rome Arrivals</option>
-              <option value="vatican-vs-spend">Vatican Corridor vs. Lazio Spend</option>
-            </select>
+            <label for="lens-select" id="lens-label">Metric Lens</label>
+            <select id="lens-select"></select>
           </div>
 
-          <div class="control-group">
+          <div class="control-group" id="window-control-group">
             <span class="control-label">Time Window</span>
-            <div class="segmented-control" role="group" aria-label="Time Window">
-              <button class="seg-btn is-active" type="button" data-window="full">2024–2026</button>
-              <button class="seg-btn" type="button" data-window="jubilee">Dec ’24 – Jan ’26</button>
-            </div>
+            <div class="segmented-control" id="window-buttons" role="group" aria-label="Time Window"></div>
           </div>
         </div>
       </div>
 
       <div class="chart-wrap">
-        <canvas id="jubileeChart"></canvas>
+        <canvas id="mainChart"></canvas>
       </div>
 
-      <div class="milestone-bar" id="milestone-callout">
-        <strong>Key Window:</strong> Late-July / early-August 2025 Youth Jubilee surge and Dec 24, 2024 – Jan 6, 2026 Holy Door milestones.
+      <div class="milestone-bar" id="milestone-callout"></div>
+    </section>
+
+    <!-- Secondary Regional Breakdown Table (shown on Regional Dispersal tab) -->
+    <section class="panel is-hidden" id="regional-table-panel" aria-labelledby="regional-table-heading">
+      <div class="panel-header">
+        <div>
+          <h2 id="regional-table-heading">Regional Concentration &amp; Dispersal Snapshot</h2>
+          <p class="panel-desc">
+            Compare top honeypot hubs against secondary and alpine/rural corridors.
+          </p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Region / Corridor</th>
+              <th>Role</th>
+              <th>2022–2026 Trend</th>
+              <th>Seasonality Profile</th>
+              <th>Pressure Signal</th>
+            </tr>
+          </thead>
+          <tbody id="regional-table-body"></tbody>
+        </table>
       </div>
     </section>
 
     <!-- Analytical Notes -->
-    <section class="notes-grid">
-      <article class="panel">
-        <h3>Participation vs. Bed-Night Capacity</h3>
-        <p>
-          Official Jubilee program counts capture same-day pilgrims, liturgical gatherings, and group visits,
-          whereas ISTAT hotel and short-term rental series measure overnight stays. Keeping both visible avoids
-          overstating hotel occupancy during single-day surges.
-        </p>
-      </article>
-      <article class="panel">
-        <h3>Vatican Corridor &amp; Lazio Spillover</h3>
-        <p>
-          Demand concentrated around the Vatican, Prati/Borgo, and the four Major Basilicas while lifting
-          international spending across Lazio. Load <code>./data/processed/jubilee_2025.json</code> in your
-          script to swap placeholder series for verified monthly data.
-        </p>
-      </article>
-    </section>
+    <section class="notes-grid" id="notes-grid"></section>
   </main>
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <span>Sources: ISTAT, ENIT / Ministry of Tourism, Jubilee &amp; Airport releases</span>
-      <span id="data-status-badge" class="badge">Prototype Baseline · Ready for JSON</span>
+      <span>Sources: ISTAT, ENIT / Ministry of Tourism, Jubilee &amp; Milano Cortina releases</span>
+      <span id="data-status-badge" class="badge">Checking JSON files…</span>
     </div>
   </footer>
 
   <script>
-    const PROTOTYPE_SERIES = [
-      { month: "2024-01", arrivals: 100.0, wave: 100.0, vatican: 100.0, spend: 100.0, note: "2024 baseline month" },
-      { month: "2024-04", arrivals: 118.5, wave: 105.0, vatican: 108.0, spend: 115.0, note: "Spring leisure & pre-Jubilee prep" },
-      { month: "2024-07", arrivals: 136.0, wave: 110.0, vatican: 114.0, spend: 132.0, note: "Summer peak baseline" },
-      { month: "2024-10", arrivals: 124.0, wave: 112.0, vatican: 116.0, spend: 121.0, note: "Autumn shoulder season" },
-      { month: "2024-12", arrivals: 116.0, wave: 134.0, vatican: 138.0, spend: 119.0, note: "Holy Door opens (Dec 24, 2024)" },
-      { month: "2025-02", arrivals: 109.0, wave: 122.0, vatican: 125.0, spend: 112.0, note: "Winter pilgrimage & Rome arrivals" },
-      { month: "2025-04", arrivals: 129.0, wave: 148.0, vatican: 152.0, spend: 134.0, note: "Spring Jubilee & Easter gatherings" },
-      { month: "2025-07", arrivals: 147.0, wave: 184.0, vatican: 176.0, spend: 156.0, note: "Jubilee of Young People surge" },
-      { month: "2025-10", arrivals: 135.0, wave: 150.0, vatican: 154.0, spend: 142.0, note: "Autumn Jubilee pilgrimage wave" },
-      { month: "2025-12", arrivals: 125.0, wave: 144.0, vatican: 147.0, spend: 131.0, note: "Late Holy Year final month" },
-      { month: "2026-01", arrivals: 115.0, wave: 128.0, vatican: 126.0, spend: 118.0, note: "Holy Door closes (Jan 6, 2026)" },
-      { month: "2026-04", arrivals: 126.0, wave: 108.0, vatican: 112.0, spend: 124.0, note: "Post-Jubilee spring normalization" },
-      { month: "2026-07", arrivals: 142.0, wave: 112.0, vatican: 116.0, spend: 139.0, note: "Post-Jubilee summer baseline" }
-    ];
-
-    const ctx = document.getElementById("jubileeChart").getContext("2d");
-    const chart = new Chart(ctx, {
-      type: "line",
-      data: {
-        labels: [],
-        datasets: [
-          { label: "Rome Arrivals Index", data: [], borderColor: "#1d4ed8", backgroundColor: "#1d4ed8", tension: 0.3 },
-          { label: "Jubilee Wave Index", data: [], borderColor: "#b45309", backgroundColor: "#b45309", tension: 0.3 },
-          { label: "Vatican Corridor Index", data: [], borderColor: "#0f766e", backgroundColor: "#0f766e", tension: 0.3 },
-          { label: "Lazio Intl. Spend Index", data: [], borderColor: "#6d28d9", backgroundColor: "#6d28d9", tension: 0.3 }
-        ]
+    const TAB_CONFIG = {
+      trajectory: {
+        dataUrl: "./data/processed/trajectory.json",
+        _loadedRows: null,
+        title: "2022–2026 Trajectory",
+        subtitle: "Post-pandemic rebound, shoulder-season growth, and mega-event waves across Italy.",
+        chartHeading: "National & Corridor Index (2022–2026)",
+        chartDesc: "Indexed to Jan 2022 = 100. Hover any period for context notes.",
+        chartType: "line",
+        callout: "<strong>Trajectory takeaway:</strong> Strong summer peaks are increasingly paired with spring/autumn shoulder demand and event spikes in 2025–2026.",
+        kpis: [
+          { label: "2024 Inbound Arrivals", value: "~57.7M", meta: "~381M international nights", positive: false },
+          { label: "2025 Visitor Volume", value: "~87.9M", meta: "Record annual momentum", positive: true },
+          { label: "Shoulder Expansion", value: "Apr–Jun / Sep–Nov", meta: "Broadening beyond peak summer", positive: true },
+          { label: "Event Window Span", value: "Dec 2024 – Feb 2026", meta: "Jubilee & Winter Olympics", positive: false }
+        ],
+        lenses: [
+          { value: "all", label: "All Series", visible: [true, true, true, true] },
+          { value: "national-vs-secondary", label: "National vs. Secondary Regions", visible: [true, false, false, true] },
+          { value: "event-corridors", label: "Rome/Lazio vs. Northern/Alpine", visible: [false, true, true, false] }
+        ],
+        windows: [
+          { value: "full", label: "2022–2026" },
+          { value: "recent", label: "2024–2026" }
+        ],
+        seriesLabels: ["National Index", "Rome & Lazio", "Northern & Alpine", "Secondary Regions"],
+        seriesColors: ["#1d4ed8", "#b45309", "#0f766e", "#6d28d9"],
+        rows: [
+          { label: "2022-01", v: [100, 100, 100, 100], note: "Early 2022 recovery baseline" },
+          { label: "2022-07", v: [148, 146, 152, 145], note: "Post-lockdown summer rebound" },
+          { label: "2023-07", v: [164, 166, 162, 161], note: "Strong international return" },
+          { label: "2024-07", v: [176, 178, 173, 175], note: "Pre-Jubilee summer peak" },
+          { label: "2024-12", v: [142, 156, 145, 136], note: "Jubilee Holy Door opens (Dec 24, 2024)" },
+          { label: "2025-07", v: [192, 208, 182, 186], note: "Peak 2025 summer & Youth Jubilee wave" },
+          { label: "2026-02", v: [158, 154, 194, 151], note: "Milano Cortina Winter Olympics (Feb 6–22, 2026)" },
+          { label: "2026-07", v: [196, 190, 188, 194], note: "Post-Olympics summer & continued dispersal" }
+        ],
+        notes: [
+          {
+            heading: "Macro Recovery to Record Volume",
+            body: "After rapid post-pandemic gains in 2022–2024, 2025 saw record visitor activity while shoulder months carried a larger share of annual demand."
+          },
+          {
+            heading: "Two Distinct Mega-Event Shapes",
+            body: "The 2025 Jubilee stretched across more than a year in Rome/Lazio, whereas the February 2026 Winter Olympics created a sharp winter spike in Northern & Alpine corridors."
+          }
+        ],
+        showRegionalTable: false
       },
+
+      jubilee: {
+        dataUrl: "./data/processed/jubilee_2025.json",
+        _loadedRows: null,
+        title: "2025 Jubilee Deep Dive",
+        subtitle: "Pilgrimage waves from Dec 24, 2024 through Jan 6, 2026 alongside Rome arrivals and Lazio spend.",
+        chartHeading: "Jubilee Wave vs. Rome Arrivals & Lazio Spend",
+        chartDesc: "Indexed to Jan 2024 = 100. Compare day/pilgrimage intensity against overnight and spending series.",
+        chartType: "line",
+        callout: "<strong>Jubilee takeaway:</strong> Total pilgrimage counts (~33.5M) capture same-day and liturgical waves alongside Rome's 22.9M arrivals and €10.25B Lazio international spend in 2025.",
+        kpis: [
+          { label: "Jubilee Participation", value: "~33.5M", meta: "Dec 2024 – Jan 2026 scope", positive: true },
+          { label: "Rome Arrivals (2025)", value: "22.9M", meta: "52.92M overnight stays", positive: false },
+          { label: "Lazio Intl. Spend (2025)", value: "€10.25B", meta: "+19.2% YoY gain", positive: true },
+          { label: "Rome Airports (2025)", value: "55.3M", meta: "Fiumicino & Ciampino", positive: false }
+        ],
+        lenses: [
+          { value: "all", label: "All Jubilee Series", visible: [true, true, true, true] },
+          { value: "wave-arrivals", label: "Jubilee Wave vs. Rome Arrivals", visible: [true, true, false, false] },
+          { value: "vatican-spend", label: "Vatican Corridor vs. Lazio Spend", visible: [false, false, true, true] }
+        ],
+        windows: [
+          { value: "full", label: "2024–2026" },
+          { value: "jubilee", label: "Dec ’24 – Jan ’26" }
+        ],
+        seriesLabels: ["Rome Arrivals", "Jubilee Wave", "Vatican Corridor", "Lazio Intl. Spend"],
+        seriesColors: ["#1d4ed8", "#b45309", "#0f766e", "#6d28d9"],
+        rows: [
+          { label: "2024-01", v: [100, 100, 100, 100], note: "2024 baseline month" },
+          { label: "2024-07", v: [136, 110, 114, 132], note: "Summer leisure baseline" },
+          { label: "2024-12", v: [116, 134, 138, 119], note: "Holy Door opens (Dec 24, 2024)" },
+          { label: "2025-04", v: [129, 148, 152, 134], note: "Spring Jubilee & Easter gatherings" },
+          { label: "2025-07", v: [147, 184, 176, 156], note: "Jubilee of Young People peak wave" },
+          { label: "2025-10", v: [135, 150, 154, 142], note: "Autumn pilgrimage wave" },
+          { label: "2026-01", v: [115, 128, 126, 118], note: "Holy Door closes (Jan 6, 2026)" },
+          { label: "2026-06", v: [138, 110, 114, 135], note: "Post-Jubilee normalization" }
+        ],
+        notes: [
+          {
+            heading: "Pilgrims vs. Bed-Nights",
+            body: "Separate same-day pilgrimage and liturgical counts from hotel/short-term rental bed-nights so accommodation capacity is interpreted accurately."
+          },
+          {
+            heading: "Vatican & Lazio Spillover",
+            body: "Track Vatican/Prati/Borgo and Major Basilica activity alongside Lazio international expenditure and airport traffic."
+          }
+        ],
+        showRegionalTable: false
+      },
+
+      olympics: {
+        dataUrl: "./data/processed/olympics_2026.json",
+        _loadedRows: null,
+        title: "2026 Winter Olympics (Milano Cortina)",
+        subtitle: "February 6–22, 2026 winter spike across Milan and alpine venue clusters vs. post-Games normalization.",
+        chartHeading: "Winter Olympics Corridor & Seasonal Shift",
+        chartDesc: "Indexed to Jan 2025 = 100. Contrast alpine clusters, Milan gateway demand, and post-Feb normalization.",
+        chartType: "line",
+        callout: "<strong>Olympics takeaway:</strong> Milano Cortina (Feb 6–22, 2026) concentrated winter demand around Milan and alpine competition hubs before returning toward seasonal baselines.",
+        kpis: [
+          { label: "Games Window", value: "Feb 6–22, 2026", meta: "Milano Cortina Winter Olympics", positive: true },
+          { label: "Primary Hubs", value: "Milan & Alps", meta: "Cortina, Livigno, Bormio, Val di Fiemme", positive: false },
+          { label: "Peak Signal", value: "Feb 2026 Spike", meta: "Mid-winter surge vs. typical Feb", positive: true },
+          { label: "Post-Event Phase", value: "Mar–Apr 2026", meta: "Spring normalization & shoulder shift", positive: false }
+        ],
+        lenses: [
+          { value: "all", label: "All Olympics Series", visible: [true, true, true] },
+          { value: "alpine-vs-milan", label: "Alpine Clusters vs. Milan Gateway", visible: [true, true, false] },
+          { value: "alpine-vs-national", label: "Alpine Clusters vs. National", visible: [true, false, true] }
+        ],
+        windows: [
+          { value: "full", label: "2025–2026" },
+          { value: "winter26", label: "Nov ’25 – Apr ’26" }
+        ],
+        seriesLabels: ["Alpine Venue Corridors", "Milan Gateway", "National Baseline"],
+        seriesColors: ["#0f766e", "#1d4ed8", "#64748b"],
+        rows: [
+          { label: "2025-01", v: [100, 100, 100], note: "Prior-year winter baseline" },
+          { label: "2025-07", v: [128, 122, 134], note: "Summer mountain & city travel" },
+          { label: "2025-11", v: [108, 118, 106], note: "Pre-winter shoulder" },
+          { label: "2026-01", v: [134, 126, 112], note: "Pre-Games ramp-up" },
+          { label: "2026-02", v: [188, 162, 124], note: "Milano Cortina Winter Olympics (Feb 6–22, 2026)" },
+          { label: "2026-03", v: [132, 124, 118], note: "Post-Games transition" },
+          { label: "2026-05", v: [110, 125, 128], note: "Spring normalization" }
+        ],
+        notes: [
+          {
+            heading: "Distributed Alpine Footprint",
+            body: "Unlike single-city Games, Milano Cortina spans Lombardy, Veneto, and Trentino/Alto Adige—requiring cluster-level tracking rather than a single city metric."
+          },
+          {
+            heading: "Winter Spike vs. Long-Tail Legacy",
+            body: "Distinguish short-window Games rate/occupancy spikes from repeat alpine visitation and transport/infrastructure legacy."
+          }
+        ],
+        showRegionalTable: false
+      },
+
+      dispersal: {
+        dataUrl: "./data/processed/regional_dispersal.json",
+        _loadedRows: null,
+        title: "Regional Dispersal & Pressure",
+        subtitle: "Comparing core honeypot hubs against secondary, mountain, and rural regions across Italy.",
+        chartHeading: "Regional Share & Growth Profile (Prototype)",
+        chartDesc: "Compare accommodation night share across major corridors and secondary/alpine regions.",
+        chartType: "bar",
+        callout: "<strong>Dispersal takeaway:</strong> Tracking secondary and mountain/rural regions alongside core hubs shows whether growth is relieving or shifting pressure.",
+        kpis: [
+          { label: "Core Hubs", value: "Rome · Florence · Venice · Milan", meta: "High international & day-trip intensity", positive: false },
+          { label: "Secondary & Alpine", value: "Emilia-Romagna · Marche · Alps", meta: "Broader seasonal & regional reach", positive: true },
+          { label: "Concentration Metric", value: "HHI / Top-5 Share", meta: "Compute from ISTAT regional nights", positive: false },
+          { label: "Pressure Metric", value: "Nights vs. Residents", meta: "Pair with short-term rental share", positive: true }
+        ],
+        lenses: [
+          { value: "all", label: "2022 vs. 2025 Share (%)", visible: [true, true] },
+          { value: "y2025-only", label: "2025 Share Only (%)", visible: [false, true] }
+        ],
+        windows: [],
+        seriesLabels: ["2022 Night Share (%)", "2025 Night Share (%)"],
+        seriesColors: ["#94a3b8", "#1d4ed8"],
+        rows: [
+          { label: "Lazio (Rome)", v: [11.2, 12.1], note: "Jubilee boost & capital demand", role: "Core Hub", trend: "Up (Jubilee lift)", season: "Year-round + spikes", pressure: "High urban density" },
+          { label: "Veneto (Venice/Dolomites)", v: [15.4, 14.8], note: "Strong coastal, lake & alpine base", role: "Core + Alpine", trend: "High volume, shifting mix", season: "Spring–Autumn + Winter", pressure: "Very high in Venice" },
+          { label: "Lombardy (Milan/Lakes/Alps)", v: [11.8, 12.4], note: "Business, lakes & 2026 Olympics", role: "Gateway + Alpine", trend: "Steady upward", season: "Year-round + Feb peak", pressure: "Moderate–High" },
+          { label: "Tuscany (Florence/Val d'Orcia)", v: [10.9, 10.5], note: "Art cities & rural/wine corridors", role: "Core + Rural", trend: "High baseline", season: "Spring–Autumn", pressure: "High in historic centers" },
+          { label: "Emilia-Romagna", v: [9.4, 9.7], note: "Riviera, food/motor valley & cities", role: "Secondary / Diversified", trend: "Gradual dispersal", season: "Summer + Shoulder", pressure: "Moderate" },
+          { label: "Trentino-Alto Adige", v: [11.5, 11.6], note: "High alpine hiking & ski tourism", role: "Alpine / Nature", trend: "Resilient two-season", season: "Summer & Winter", pressure: "Seasonal mountain peak" }
+        ],
+        notes: [
+          {
+            heading: "Concentration vs. Dispersal",
+            body: "A falling top-region share or rising secondary-region growth rate signals broader dispersal—provided growth isn't just moving to a few new bottlenecks."
+          },
+          {
+            heading: "Overtourism Context",
+            body: "High visitor counts mean different things in a dense historic center than in a larger region; normalize by local population and bed capacity."
+          }
+        ],
+        showRegionalTable: true
+      }
+    };
+
+    const ctx = document.getElementById("mainChart").getContext("2d");
+    const mainChart = new Chart(ctx, {
+      type: "line",
+      data: { labels: [], datasets: [] },
       options: {
         responsive: true,
         maintainAspectRatio: false,
@@ -157,54 +302,238 @@
             callbacks: {
               afterBody(items) {
                 const idx = items[0]?.dataIndex ?? 0;
-                const row = activeRows[idx];
-                return row ? `\nNote: ${row.note}` : "";
+                const row = currentFilteredRows[idx];
+                return row && row.note ? `\nNote: ${row.note}` : "";
               }
             }
           }
-        },
-        scales: {
-          y: { suggestedMin: 80, suggestedMax: 200 }
         }
       }
     });
 
-    let activeRows = PROTOTYPE_SERIES;
+    let activeTabKey = "trajectory";
+    let activeWindowValue = "full";
+    let currentFilteredRows = [];
 
-    function updateChart() {
-      const windowMode = document.querySelector(".seg-btn.is-active")?.dataset.window || "full";
-      const lens = document.getElementById("lens-select").value;
-
-      activeRows = windowMode === "jubilee"
-        ? PROTOTYPE_SERIES.filter((r) => r.month >= "2024-12" && r.month <= "2026-01")
-        : PROTOTYPE_SERIES;
-
-      const showMap = {
-        all: [true, true, true, true],
-        "wave-vs-arrivals": [true, true, false, false],
-        "vatican-vs-spend": [false, false, true, true]
-      };
-      const visibleFlags = showMap[lens] || showMap.all;
-
-      chart.data.labels = activeRows.map((r) => r.month);
-      const seriesKeys = ["arrivals", "wave", "vatican", "spend"];
-      chart.data.datasets.forEach((ds, i) => {
-        ds.hidden = !visibleFlags[i];
-        ds.data = activeRows.map((r) => r[seriesKeys[i]]);
-      });
-      chart.update();
+    function getActiveRows(cfg) {
+      return Array.isArray(cfg._loadedRows) && cfg._loadedRows.length > 0
+        ? cfg._loadedRows
+        : cfg.rows;
     }
 
-    document.getElementById("lens-select").addEventListener("change", updateChart);
-    document.querySelectorAll(".seg-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".seg-btn").forEach((b) => b.classList.remove("is-active"));
-        btn.classList.add("is-active");
-        updateChart();
+    function normalizeJsonRows(rawData, seriesCount) {
+      if (!Array.isArray(rawData) || rawData.length === 0) return null;
+      return rawData.map((item) => {
+        const label = String(item.label ?? item.month ?? item.region ?? "");
+        const values = Array.isArray(item.v)
+          ? item.v.slice(0, seriesCount).map((n) => Number(n))
+          : Array.from({ length: seriesCount }, (_, i) => Number(item[`s${i + 1}`] ?? 0));
+        return {
+          label,
+          v: values,
+          note: item.note ?? item.key_jubilee_event ?? "",
+          role: item.role,
+          trend: item.trend,
+          season: item.season,
+          pressure: item.pressure
+        };
       });
+    }
+
+    async function loadTabData(tabKey) {
+      const cfg = TAB_CONFIG[tabKey];
+      const badge = document.getElementById("data-status-badge");
+
+      if (!cfg.dataUrl) {
+        if (badge) badge.textContent = "Prototype Baseline · Static Config";
+        return;
+      }
+
+      if (Array.isArray(cfg._loadedRows)) {
+        if (badge) badge.textContent = `Loaded · ${cfg.dataUrl}`;
+        return;
+      }
+
+      try {
+        const res = await fetch(cfg.dataUrl, { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        const normalized = normalizeJsonRows(json, cfg.seriesLabels.length);
+        if (!normalized) throw new Error("Empty or invalid JSON array");
+
+        cfg._loadedRows = normalized;
+        if (badge) badge.textContent = `Live JSON · ${cfg.dataUrl}`;
+      } catch (_err) {
+        cfg._loadedRows = null;
+        if (badge) badge.textContent = `Prototype Fallback · ${cfg.dataUrl} not found`;
+      }
+    }
+
+    function filterRowsForTab(tabKey, rows, windowValue) {
+      if (tabKey === "jubilee" && windowValue === "jubilee") {
+        return rows.filter((r) => r.label >= "2024-12" && r.label <= "2026-01");
+      }
+      if (tabKey === "trajectory" && windowValue === "recent") {
+        return rows.filter((r) => r.label >= "2024-01");
+      }
+      if (tabKey === "olympics" && windowValue === "winter26") {
+        return rows.filter((r) => r.label >= "2025-11" && r.label <= "2026-05");
+      }
+      return rows;
+    }
+
+    function renderKpis(kpis) {
+      const grid = document.getElementById("kpi-grid");
+      grid.innerHTML = kpis
+        .map(
+          (k) => `
+          <article class="kpi-card">
+            <span class="kpi-label">${k.label}</span>
+            <strong class="kpi-value">${k.value}</strong>
+            <span class="kpi-meta ${k.positive ? "positive" : ""}">${k.meta}</span>
+          </article>
+        `
+        )
+        .join("");
+    }
+
+    function renderNotes(notes) {
+      const grid = document.getElementById("notes-grid");
+      grid.innerHTML = notes
+        .map(
+          (n) => `
+          <article class="panel">
+            <h3>${n.heading}</h3>
+            <p>${n.body}</p>
+          </article>
+        `
+        )
+        .join("");
+    }
+
+    function renderRegionalTable(rows, show) {
+      const panel = document.getElementById("regional-table-panel");
+      const tbody = document.getElementById("regional-table-body");
+      if (!show) {
+        panel.classList.add("is-hidden");
+        return;
+      }
+      panel.classList.remove("is-hidden");
+      tbody.innerHTML = rows
+        .map(
+          (r) => `
+          <tr>
+            <td><strong>${r.label}</strong></td>
+            <td>${r.role || "—"}</td>
+            <td>${r.trend || "—"}</td>
+            <td>${r.season || "—"}</td>
+            <td>${r.pressure || "—"}</td>
+          </tr>
+        `
+        )
+        .join("");
+    }
+
+    function renderControls(cfg) {
+      const lensSelect = document.getElementById("lens-select");
+      lensSelect.innerHTML = cfg.lenses
+        .map((l) => `<option value="${l.value}">${l.label}</option>`)
+        .join("");
+
+      const windowGroup = document.getElementById("window-control-group");
+      const windowButtons = document.getElementById("window-buttons");
+
+      if (!cfg.windows || cfg.windows.length === 0) {
+        windowGroup.classList.add("is-hidden");
+        windowButtons.innerHTML = "";
+        activeWindowValue = "full";
+      } else {
+        windowGroup.classList.remove("is-hidden");
+        activeWindowValue = cfg.windows[0].value;
+        windowButtons.innerHTML = cfg.windows
+          .map(
+            (w, i) => `
+            <button class="seg-btn ${i === 0 ? "is-active" : ""}" type="button" data-window="${w.value}">
+              ${w.label}
+            </button>
+          `
+          )
+          .join("");
+
+        windowButtons.querySelectorAll(".seg-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            windowButtons.querySelectorAll(".seg-btn").forEach((b) => b.classList.remove("is-active"));
+            btn.classList.add("is-active");
+            activeWindowValue = btn.dataset.window;
+            updateChartView();
+          });
+        });
+      }
+    }
+
+    function updateChartView() {
+      const cfg = TAB_CONFIG[activeTabKey];
+      const lensValue = document.getElementById("lens-select").value;
+      const lensObj = cfg.lenses.find((l) => l.value === lensValue) || cfg.lenses[0];
+      const sourceRows = getActiveRows(cfg);
+
+      currentFilteredRows = filterRowsForTab(activeTabKey, sourceRows, activeWindowValue);
+
+      mainChart.config.type = cfg.chartType;
+      mainChart.data.labels = currentFilteredRows.map((r) => r.label);
+      mainChart.data.datasets = cfg.seriesLabels.map((label, idx) => ({
+        label,
+        data: currentFilteredRows.map((r) => r.v[idx]),
+        borderColor: cfg.seriesColors[idx],
+        backgroundColor: cfg.seriesColors[idx],
+        tension: 0.3,
+        hidden: !(lensObj.visible[idx] ?? true)
+      }));
+
+      mainChart.options.scales = {
+        y: {
+          beginAtZero: cfg.chartType === "bar",
+          suggestedMin: cfg.chartType === "bar" ? 0 : 85,
+          suggestedMax: cfg.chartType === "bar" ? 20 : 215
+        }
+      };
+
+      mainChart.update();
+    }
+
+    async function switchTab(tabKey) {
+      if (!TAB_CONFIG[tabKey]) return;
+      activeTabKey = tabKey;
+      const cfg = TAB_CONFIG[tabKey];
+
+      document.querySelectorAll(".tab-btn").forEach((btn) => {
+        btn.classList.toggle("is-active", btn.dataset.tab === tabKey);
+      });
+
+      document.getElementById("page-title").textContent = cfg.title;
+      document.getElementById("page-subtitle").textContent = cfg.subtitle;
+      document.getElementById("chart-heading").textContent = cfg.chartHeading;
+      document.getElementById("chart-desc").textContent = cfg.chartDesc;
+      document.getElementById("milestone-callout").innerHTML = cfg.callout;
+
+      renderKpis(cfg.kpis);
+      renderControls(cfg);
+      renderNotes(cfg.notes);
+
+      await loadTabData(tabKey);
+
+      const rowsForView = getActiveRows(cfg);
+      renderRegionalTable(rowsForView, cfg.showRegionalTable);
+      updateChartView();
+    }
+
+    document.querySelectorAll(".tab-btn").forEach((btn) => {
+      btn.addEventListener("click", () => switchTab(btn.dataset.tab));
     });
 
-    updateChart();
+    document.getElementById("lens-select").addEventListener("change", updateChartView);
+
+    switchTab("trajectory");
   </script>
 </body>
 </html>
